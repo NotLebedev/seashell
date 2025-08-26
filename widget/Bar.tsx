@@ -1,17 +1,17 @@
-import app from "ags/gtk4/app"
-import { Astal, Gtk, Gdk } from "ags/gtk4"
-import AutoHide from "./HideController"
+import app from "ags/gtk4/app";
+import { Astal, Gtk, Gdk } from "ags/gtk4";
+import AutoHide from "./HideController";
 
 function HideButton() {
   return (
     <button onClicked={(self) => console.log(self, "clicked")}>
       <label label="Run" />
     </button>
-  )
+  );
 }
 
 export default function Bar(gdkmonitor: Gdk.Monitor) {
-  const { TOP, LEFT, RIGHT } = Astal.WindowAnchor
+  const { TOP, LEFT, RIGHT } = Astal.WindowAnchor;
 
   return (
     <window
@@ -30,5 +30,5 @@ export default function Bar(gdkmonitor: Gdk.Monitor) {
         </box>
       </AutoHide>
     </window>
-  )
+  );
 }

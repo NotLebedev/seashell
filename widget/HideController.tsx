@@ -1,18 +1,18 @@
-import { Gtk } from "ags/gtk4"
-import { ParentProps } from "./util"
-import { createState } from "ags"
+import { Gtk } from "ags/gtk4";
+import { ParentProps } from "./util";
+import { createState } from "ags";
 
 /**
  * Component ot auto hide its contents and show on hover
  */
 export default function AutoHide({ children }: ParentProps) {
-  const [hidden, setHidden] = createState(false)
+  const [hidden, setHidden] = createState(false);
 
-  const enterController = new Gtk.EventControllerMotion()
-  const leaveController = new Gtk.EventControllerMotion()
+  const enterController = new Gtk.EventControllerMotion();
+  const leaveController = new Gtk.EventControllerMotion();
 
-  enterController.connect("enter", () => setHidden(false))
-  leaveController.connect("leave", () => setHidden(true))
+  enterController.connect("enter", () => setHidden(false));
+  leaveController.connect("leave", () => setHidden(true));
 
   return (
     <overlay class="hideController">
@@ -32,5 +32,5 @@ export default function AutoHide({ children }: ParentProps) {
         $={(self) => self.add_controller(enterController)}
       />
     </overlay>
-  )
+  );
 }
