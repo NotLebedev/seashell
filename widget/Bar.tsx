@@ -1,6 +1,7 @@
 import app from "ags/gtk4/app";
-import { Astal, Gtk, Gdk } from "ags/gtk4";
+import { Astal, Gdk } from "ags/gtk4";
 import AutoHide from "./HideController";
+import { Accessor, createState } from "gnim";
 
 function HideButton() {
   return (
@@ -15,11 +16,11 @@ export default function Bar(gdkmonitor: Gdk.Monitor) {
 
   return (
     <window
-      visible
+      visible={false}
       name="bar"
       class="Bar"
       gdkmonitor={gdkmonitor}
-      exclusivity={Astal.Exclusivity.IGNORE}
+      exclusivity={Astal.Exclusivity.NORMAL}
       anchor={TOP | LEFT | RIGHT}
       application={app}
     >
