@@ -29,6 +29,7 @@ export default function Bar({
       namespace="seashell"
       $={(self) => {
         window = self;
+        resize();
         onCleanup(() => self.destroy());
       }}
     >

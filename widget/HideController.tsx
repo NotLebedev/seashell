@@ -1,6 +1,6 @@
 import { Gtk } from "ags/gtk4";
 import { ParentProps } from "./util";
-import { createComputed, createState } from "ags";
+import { createComputed, createExternal, createState } from "ags";
 import AstalHyprland from "gi://AstalHyprland?version=0.1";
 
 function isEmptyWorkspace(state: AstalHyprland.Hyprland): boolean {
@@ -14,18 +14,26 @@ export default function AutoHide({
   children,
   resizeHook,
 }: ParentProps<{ resizeHook: () => void }>) {
+  // Bar is hovered on
   const [hovered, setHovered] = createState(false);
+  // Currently on empty workspace
   const [emptyWorkspace, setEmptyWorkspace] = createState(
     isEmptyWorkspace(AstalHyprland.get_default()),
   );
+  // Show for a few seconds when just starting up
+  const initialDisplay = createExternal(true, (set) => {
+    const timeout = setTimeout(() => set(() => false), 1000);
+
+    return () => clearTimeout(timeout);
+  });
 
   const displayed = createComputed(
-    [hovered, emptyWorkspace],
-    (hovered, emptyWorkspace) => hovered || emptyWorkspace,
+    [hovered, emptyWorkspace, initialDisplay],
+    (hovered, emptyWorkspace, initialDisplay) =>
+      hovered || emptyWorkspace || initialDisplay,
   );
 
   const enterController = new Gtk.EventControllerMotion();
-  const leaveController = new Gtk.EventControllerMotion();
 
   AstalHyprland.get_default().connect("notify::focused-workspace", (state) => {
     setEmptyWorkspace(isEmptyWorkspace(state));
@@ -37,24 +45,16 @@ export default function AutoHide({
   return (
     <box
       orientation={Gtk.Orientation.VERTICAL}
-      $={(self) => self.add_controller(enterController)}
+      $={(self) => {
+        self.add_controller(enterController);
+        self.set_size_request(-1, 4);
+      }}
     >
-      <revealer
-        revealChild={displayed}
-        onNotifyChildRevealed={() => resizeHook()}
-      >
-        <box
-          orientation={Gtk.Orientation.VERTICAL}
-          hexpand
-          $={(self) => self.add_controller(leaveController)}
-        >
+      <revealer revealChild={displayed} onNotifyChildRevealed={resizeHook}>
+        <box orientation={Gtk.Orientation.VERTICAL} hexpand>
           {children}
         </box>
       </revealer>
-      <box
-        valign={Gtk.Align.START}
-        css="padding: 2px; background-color: white; opacity: 1%; border-radius: 0;"
-      />
     </box>
   );
 }
