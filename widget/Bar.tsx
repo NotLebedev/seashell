@@ -1,6 +1,8 @@
 import app from "ags/gtk4/app";
 import { Astal, Gdk } from "ags/gtk4";
 import AutoHide from "./HideController";
+import { Props } from "./util";
+import { onCleanup } from "ags";
 
 function HideButton() {
   return (
@@ -10,7 +12,9 @@ function HideButton() {
   );
 }
 
-export default function Bar(gdkmonitor: Gdk.Monitor) {
+export default function Bar({
+  gdkmonitor,
+}: Props<{ gdkmonitor: Gdk.Monitor }>) {
   const { TOP, LEFT, RIGHT } = Astal.WindowAnchor;
 
   let window!: Astal.Window;
@@ -29,7 +33,10 @@ export default function Bar(gdkmonitor: Gdk.Monitor) {
       exclusivity={Astal.Exclusivity.NORMAL}
       anchor={TOP | LEFT | RIGHT}
       application={app}
-      $={(self) => (window = self)}
+      $={(self) => {
+        window = self;
+        onCleanup(() => self.destroy());
+      }}
     >
       <AutoHide resizeHook={resize}>
         <box hexpand cssName="centerbox">

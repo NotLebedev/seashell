@@ -4,7 +4,7 @@ import { createComputed, createState } from "ags";
 import AstalHyprland from "gi://AstalHyprland?version=0.1";
 
 function isEmptyWorkspace(state: AstalHyprland.Hyprland): boolean {
-  return state.focused_workspace.clients.length === 0;
+  return state.focused_workspace?.clients?.length === 0;
 }
 
 /**

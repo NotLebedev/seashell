@@ -12,15 +12,15 @@
 
   outputs =
     {
-      self,
       nixpkgs,
       ags,
+      ...
     }:
     let
       system = "x86_64-linux";
       pkgs = nixpkgs.legacyPackages.${system};
       pname = "my-shell";
-      entry = "app.ts";
+      entry = "app.tsx";
 
       astalPackages = with ags.packages.${system}; [
         io
@@ -63,6 +63,7 @@
 
       devShells.${system} = {
         default = pkgs.mkShell {
+          WHAT = astalPackages;
           buildInputs = [
             (ags.packages.${system}.default.override {
               inherit extraPackages;
