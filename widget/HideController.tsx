@@ -10,8 +10,11 @@ function isEmptyWorkspace(state: AstalHyprland.Hyprland): boolean {
 /**
  * Component ot auto hide its contents and show on hover
  */
-export default function AutoHide({ children }: ParentProps) {
-  const [hovered, setHovered] = createState(true);
+export default function AutoHide({
+  children,
+  resizeHook,
+}: ParentProps<{ resizeHook: () => void }>) {
+  const [hovered, setHovered] = createState(false);
   const [emptyWorkspace, setEmptyWorkspace] = createState(
     isEmptyWorkspace(AstalHyprland.get_default()),
   );
@@ -29,23 +32,29 @@ export default function AutoHide({ children }: ParentProps) {
   });
 
   enterController.connect("enter", () => setHovered(true));
-  leaveController.connect("leave", () => setHovered(false));
+  enterController.connect("leave", () => setHovered(false));
 
   return (
-    <overlay class="hideController">
-      <box
-        hexpand
-        class={displayed((d) => (d ? "hider" : "hidden hider"))}
-        $={(self) => self.add_controller(leaveController)}
+    <box
+      orientation={Gtk.Orientation.VERTICAL}
+      $={(self) => self.add_controller(enterController)}
+    >
+      <revealer
+        revealChild={displayed}
+        onNotifyChildRevealed={() => resizeHook()}
       >
-        {children}
-      </box>
-      <box // Smaller overlay box that tracks entry
-        $type="overlay"
-        height_request={10}
+        <box
+          orientation={Gtk.Orientation.VERTICAL}
+          hexpand
+          $={(self) => self.add_controller(leaveController)}
+        >
+          {children}
+        </box>
+      </revealer>
+      <box
         valign={Gtk.Align.START}
-        $={(self) => self.add_controller(enterController)}
+        css="padding: 2px; background-color: white; opacity: 1%; border-radius: 0;"
       />
-    </overlay>
+    </box>
   );
 }
