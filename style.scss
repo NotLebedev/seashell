@@ -3,9 +3,11 @@ $fg-color: #{"@theme_fg_color"};
 $bg-color: #{"@theme_bg_color"};
 
 window.Bar {
-  background: transparent;
+  background: none;
   color: $fg-color;
   font-weight: bold;
+  font-family: "JetBrainsMono Nerd Font";
+
   .barComponent {
     margin-top: 0.5rem;
     margin-bottom: 0.5rem;
@@ -20,8 +22,7 @@ window.Bar {
   }
 
   centerbox {
-    background: $bg-color;
-    opacity: 90%;
+    background-color: rgba(64, 64, 64, 0.6);
     border-radius: 10px;
     margin: 8px;
   }
