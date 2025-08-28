@@ -16,7 +16,7 @@ export default function Clock() {
 
   return (
     <BarComponent>
-      <label label={time((t) => t.format("%H:%M:%S") ?? "00:00:00")} />
+      <label label={time((t) => t.format("%H:%M") ?? "00:00")} />
     </BarComponent>
   );
 }
