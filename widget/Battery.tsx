@@ -1,5 +1,5 @@
 import AstalBattery from "gi://AstalBattery?version=0.1";
-import BarComponent from "./BarComponent";
+import BarWidget from "./BarWidget";
 import { createState } from "gnim";
 
 export default function Battery() {
@@ -15,8 +15,8 @@ export default function Battery() {
   });
 
   return (
-    <BarComponent>
+    <BarWidget>
       <label label={chargePercent((p) => `${p}%`)} />
-    </BarComponent>
+    </BarWidget>
   );
 }

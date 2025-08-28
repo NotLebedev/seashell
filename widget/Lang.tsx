@@ -1,5 +1,5 @@
 import { createState } from "gnim";
-import BarComponent from "./BarComponent";
+import BarWidget from "./BarWidget";
 import AstalHyprland from "gi://AstalHyprland?version=0.1";
 
 // Patial info about devices of interest to keyboard layout
@@ -45,8 +45,8 @@ export default function Lang() {
   });
 
   return (
-    <BarComponent>
+    <BarWidget>
       <label label={layoutLabel}></label>
-    </BarComponent>
+    </BarWidget>
   );
 }
