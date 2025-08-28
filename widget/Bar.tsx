@@ -4,6 +4,7 @@ import AutoHide from "./HideController";
 import { Props } from "./util";
 import { onCleanup } from "ags";
 import Clock from "./Clock";
+import Lang from "./Lang";
 
 export default function Bar({
   gdkmonitor,
@@ -35,6 +36,7 @@ export default function Bar({
     >
       <AutoHide resizeHook={resize}>
         <box hexpand cssName="centerbox">
+          <Lang />
           <Clock />
         </box>
       </AutoHide>
