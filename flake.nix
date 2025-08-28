@@ -24,10 +24,10 @@
 
       astalPackages = with ags.packages.${system}; [
         io
-        astal4 # or astal3 for gtk3
+        astal4
         hyprland
         battery
-        # notifd tray wireplumber
+        tray
       ];
 
       extraPackages = astalPackages ++ [

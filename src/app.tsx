@@ -25,7 +25,11 @@ function main() {
     <For each={monitors}>
       {(monitor) => (
         <This this={app}>
-          <Bar gdkmonitor={monitor} forceDisplayed={forceDisplay}></Bar>
+          <Bar
+            gdkmonitor={monitor}
+            forceDisplayed={forceDisplay}
+            setForceDisplay={setForceDisplay}
+          />
         </This>
       )}
     </For>
