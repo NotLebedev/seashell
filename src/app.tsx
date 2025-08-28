@@ -1,8 +1,8 @@
 import app from "ags/gtk4/app";
 import style from "./style.scss";
-import Bar from "./widget/Bar";
+import Bar from "./bar/Bar";
 import { createBinding, createState, For, This } from "ags";
-import Menu from "./widget/Menu";
+import Menu from "./menu/Menu";
 import { Gtk } from "ags/gtk4";
 
 function main() {

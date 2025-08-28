@@ -1,11 +1,11 @@
 import app from "ags/gtk4/app";
 import { Astal, Gdk } from "ags/gtk4";
 import AutoHide from "./HideController";
-import { Props } from "./util";
+import { Props } from "../util";
 import { Accessor, onCleanup } from "ags";
-import Clock from "./Clock";
-import Lang from "./Lang";
-import Battery from "./Battery";
+import Clock from "./widgets/Clock";
+import Lang from "./widgets/Lang";
+import Battery from "./widgets/Battery";
 
 export default function Bar({
   gdkmonitor,

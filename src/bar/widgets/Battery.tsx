@@ -1,5 +1,5 @@
 import AstalBattery from "gi://AstalBattery?version=0.1";
-import BarWidget from "./BarWidget";
+import BarWidget from "../BarWidget";
 import { createState } from "gnim";
 
 export default function Battery() {

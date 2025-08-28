@@ -1,4 +1,4 @@
-import { ParentProps } from "./util";
+import { ParentProps } from "../util";
 
 /**
  * Base component for all widgets in bar.

@@ -1,6 +1,6 @@
 import GLib from "gi://GLib?version=2.0";
 import { createExternal, createState } from "gnim";
-import BarWidget from "./BarWidget";
+import BarWidget from "../BarWidget";
 import app from "ags/gtk4/app";
 
 export default function Clock() {

@@ -1,5 +1,5 @@
 import { Astal } from "ags/gtk4";
-import { ParentProps } from "./util";
+import { ParentProps } from "../util";
 import app from "ags/gtk4/app";
 import { Setter } from "ags";
 

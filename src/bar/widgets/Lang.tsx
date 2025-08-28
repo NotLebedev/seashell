@@ -1,5 +1,5 @@
 import { createState } from "gnim";
-import BarWidget from "./BarWidget";
+import BarWidget from "../BarWidget";
 import AstalHyprland from "gi://AstalHyprland?version=0.1";
 
 // Patial info about devices of interest to keyboard layout

@@ -1,5 +1,5 @@
 import { Gtk } from "ags/gtk4";
-import { ParentProps } from "./util";
+import { ParentProps } from "../util";
 import { Accessor, createComputed, createExternal, createState } from "ags";
 import AstalHyprland from "gi://AstalHyprland?version=0.1";
 
