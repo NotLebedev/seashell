@@ -2,13 +2,14 @@ import app from "ags/gtk4/app";
 import { Astal, Gdk } from "ags/gtk4";
 import AutoHide from "./HideController";
 import { Props } from "./util";
-import { onCleanup } from "ags";
+import { Accessor, onCleanup } from "ags";
 import Clock from "./Clock";
 import Lang from "./Lang";
 
 export default function Bar({
   gdkmonitor,
-}: Props<{ gdkmonitor: Gdk.Monitor }>) {
+  forceDisplayed,
+}: Props<{ gdkmonitor: Gdk.Monitor; forceDisplayed: Accessor<boolean> }>) {
   const { TOP, RIGHT } = Astal.WindowAnchor;
 
   let window!: Astal.Window;
@@ -35,7 +36,7 @@ export default function Bar({
         onCleanup(() => self.destroy());
       }}
     >
-      <AutoHide resizeHook={resize}>
+      <AutoHide resizeHook={resize} forceDisplay={forceDisplayed}>
         <box hexpand cssName="centerbox">
           <Lang />
           <Clock />

@@ -1,6 +1,6 @@
 import { Gtk } from "ags/gtk4";
 import { ParentProps } from "./util";
-import { createComputed, createExternal, createState } from "ags";
+import { Accessor, createComputed, createExternal, createState } from "ags";
 import AstalHyprland from "gi://AstalHyprland?version=0.1";
 
 function isEmptyWorkspace(state: AstalHyprland.Hyprland): boolean {
@@ -8,12 +8,25 @@ function isEmptyWorkspace(state: AstalHyprland.Hyprland): boolean {
 }
 
 /**
- * Component ot auto hide its contents and show on hover
+ * Component ot auto hide bar and show
+ * it when hovered or otherwise forced
+ * to display
  */
 export default function AutoHide({
   children,
   resizeHook,
-}: ParentProps<{ resizeHook: () => void }>) {
+  forceDisplay,
+}: ParentProps<{
+  /**
+   * Callback to resize window when revealed or hidden
+   */
+  resizeHook: () => void;
+  /**
+   * Override displayed state (used to prevent hiding when
+   * menus are open)
+   */
+  forceDisplay: Accessor<boolean>;
+}>) {
   // Bar is hovered on
   const [hovered, setHovered] = createState(false);
   // Currently on empty workspace
@@ -28,9 +41,9 @@ export default function AutoHide({
   });
 
   const displayed = createComputed(
-    [hovered, emptyWorkspace, initialDisplay],
-    (hovered, emptyWorkspace, initialDisplay) =>
-      hovered || emptyWorkspace || initialDisplay,
+    [hovered, emptyWorkspace, initialDisplay, forceDisplay],
+    (hovered, emptyWorkspace, initialDisplay, forceDisplay) =>
+      hovered || emptyWorkspace || initialDisplay || forceDisplay,
   );
 
   const enterController = new Gtk.EventControllerMotion();
