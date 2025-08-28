@@ -28,6 +28,7 @@ export default function Bar({
       anchor={TOP | RIGHT}
       application={app}
       namespace="seashell"
+      marginRight={16}
       $={(self) => {
         window = self;
         resize();

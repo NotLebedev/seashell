@@ -24,13 +24,18 @@ window.Bar {
   centerbox {
     background-color: rgba(64, 64, 64, 0.6);
     border-radius: 10px;
-    margin: 8px;
-  }
 
-  button {
-    border-radius: 8px;
-    margin: 2px;
+    // Window has 0 margin to top edge of .screen
+    // Instead we have margin above centerbox to hide
+    // bar into offscreen, not into nowhere
+    margin-top: 8px;
   }
+}
+
+button.invisible {
+  padding: 0;
+  margin: 0;
+  background: none;
 }
 
 .hider {

@@ -1,6 +1,7 @@
 import GLib from "gi://GLib?version=2.0";
 import { createExternal, createState } from "gnim";
 import BarComponent from "./BarComponent";
+import app from "ags/gtk4/app";
 
 export default function Clock() {
   createState(GLib.DateTime.new_now_local);
@@ -16,7 +17,9 @@ export default function Clock() {
 
   return (
     <BarComponent>
-      <label label={time((t) => t.format("%H:%M") ?? "00:00")} />
+      <button class="invisible" onClicked={() => app.toggle_window("calendar")}>
+        <label label={time((t) => t.format("%H:%M") ?? "00:00")} />
+      </button>
     </BarComponent>
   );
 }
