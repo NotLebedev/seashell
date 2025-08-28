@@ -5,6 +5,7 @@ import { Props } from "./util";
 import { Accessor, onCleanup } from "ags";
 import Clock from "./Clock";
 import Lang from "./Lang";
+import Battery from "./Battery";
 
 export default function Bar({
   gdkmonitor,
@@ -39,6 +40,7 @@ export default function Bar({
       <AutoHide resizeHook={resize} forceDisplay={forceDisplayed}>
         <box hexpand cssName="centerbox">
           <Lang />
+          <Battery />
           <Clock />
         </box>
       </AutoHide>

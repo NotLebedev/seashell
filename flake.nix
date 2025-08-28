@@ -26,6 +26,7 @@
         io
         astal4 # or astal3 for gtk3
         hyprland
+        battery
         # notifd tray wireplumber
       ];
 
