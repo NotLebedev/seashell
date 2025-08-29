@@ -2,6 +2,9 @@
 $fg-color: #{"@theme_fg_color"};
 $bg-color: #{"@theme_bg_color"};
 
+$window-bg-color: rgba(64, 64, 64, 0.6);
+$window-box-shadow: rgba(0, 0, 0, 0.24) 0px 3px 8px;
+
 window.Bar {
   background: none;
   color: $fg-color;
@@ -22,13 +25,11 @@ window.Bar {
   }
 
   centerbox {
-    background-color: rgba(64, 64, 64, 0.6);
+    background-color: $window-bg-color;
+    box-shadow: $window-box-shadow;
     border-radius: 10px;
 
-    // Window has 0 margin to top edge of .screen
-    // Instead we have margin above centerbox to hide
-    // bar into offscreen, not into nowhere
-    margin-top: 8px;
+    margin: 8px;
   }
 }
 
@@ -49,6 +50,13 @@ button.invisible {
 
     padding: 0;
     background: none;
+  }
+}
+
+popover.background {
+  > contents {
+    background-color: $window-bg-color;
+    box-shadow: $window-box-shadow;
   }
 }
 

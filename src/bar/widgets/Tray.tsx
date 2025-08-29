@@ -22,6 +22,10 @@ function TrayItem({
       $={(self) => {
         self.set_menu_model(item.menuModel);
         self.insert_action_group("dbusmenu", item.actionGroup);
+
+        self.popover.hasArrow = false;
+        // Compensate for no arrow in layout
+        self.popover.set_offset(0, 12);
       }}
     >
       <image gicon={icon} />
