@@ -17,10 +17,15 @@ function TrayItem({
   let menuButton!: Gtk.MenuButton;
   const clickController = new Gtk.GestureClick({ button: 0 });
   clickController.connect("pressed", (gesture) => {
+    // Prevent default action of MenuButton
     gesture.set_state(Gtk.EventSequenceState.CLAIMED);
-    if (gesture.get_current_button() == 1) {
+
+    const button = gesture.get_current_button();
+    const isMenu = item.isMenu;
+
+    if (!isMenu && button == 1) {
       item.activate(0, 0);
-    } else if (gesture.get_current_button() === 3) {
+    } else if (button == 1 || button == 3) {
       menuButton.popup();
     }
   });
