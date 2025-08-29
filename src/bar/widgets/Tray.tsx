@@ -42,9 +42,11 @@ export default function Tray({
     setItems(state.get_items());
   });
 
+  const filteredItems = items((items) => items.filter((item) => item.id));
+
   return (
     <BarWidget>
-      <For each={items}>
+      <For each={filteredItems}>
         {(item) => {
           return <TrayItem item={item} setForceDisplay={setForceDisplay} />;
         }}
