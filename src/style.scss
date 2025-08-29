@@ -38,6 +38,20 @@ button.invisible {
   background: none;
 }
 
+.trayItem {
+  margin-right: 1rem;
+  &:last-child {
+    margin-right: 0;
+  }
+
+  & > button.toggle {
+    margin: 0;
+
+    padding: 0;
+    background: none;
+  }
+}
+
 .hider {
   transition: transform 0.3s;
   transform: translate(0, 0);
