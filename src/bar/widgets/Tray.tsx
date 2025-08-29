@@ -14,12 +14,26 @@ function TrayItem({
     setIcon(newItem.gicon);
   });
 
+  let menuButton!: Gtk.MenuButton;
+  const clickController = new Gtk.GestureClick({ button: 0 });
+  clickController.connect("pressed", (gesture) => {
+    gesture.set_state(Gtk.EventSequenceState.CLAIMED);
+    if (gesture.get_current_button() == 1) {
+      item.activate(0, 0);
+    } else if (gesture.get_current_button() === 3) {
+      menuButton.popup();
+    }
+  });
+
   return (
     <Gtk.MenuButton
       class="trayItem"
       direction={Gtk.ArrowType.DOWN}
       onNotifyActive={(source) => setForceDisplay(source.active)}
       $={(self) => {
+        menuButton = self;
+        self.add_controller(clickController);
+
         self.set_menu_model(item.menuModel);
         self.insert_action_group("dbusmenu", item.actionGroup);
 
