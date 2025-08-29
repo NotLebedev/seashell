@@ -7,6 +7,8 @@ import Clock from "./widgets/Clock";
 import Lang from "./widgets/Lang";
 import Battery from "./widgets/Battery";
 import Tray from "./widgets/Tray";
+import MenuButton from "./DropdownButton";
+import DropdownMenu from "./menus/DropdownMenu";
 
 export default function Bar({
   gdkmonitor,
@@ -46,8 +48,10 @@ export default function Bar({
         <box hexpand cssName="centerbox">
           <Lang />
           <Tray setForceDisplay={setForceDisplay} />
-          <Battery />
-          <Clock />
+          <MenuButton menu={<DropdownMenu />} setForceDisplay={setForceDisplay}>
+            <Battery />
+            <Clock />
+          </MenuButton>
         </box>
       </AutoHide>
     </window>
