@@ -8,15 +8,23 @@ function TrayItem({
   item,
   setForceDisplay,
 }: Props<{ item: AstalTray.TrayItem; setForceDisplay: Setter<boolean> }>) {
+  const [icon, setIcon] = createState(item.gicon);
+
+  item.connect("changed", (newItem) => {
+    setIcon(newItem.gicon);
+  });
+
   return (
     <Gtk.MenuButton
-      iconName={item.iconName}
+      class="trayItem"
       direction={Gtk.ArrowType.DOWN}
       onNotifyActive={(source) => setForceDisplay(source.active)}
-      menuModel={item.menuModel}
-      $={(self) => self.insert_action_group("dbusmenu", item.actionGroup)}
+      $={(self) => {
+        self.set_menu_model(item.menuModel);
+        self.insert_action_group("dbusmenu", item.actionGroup);
+      }}
     >
-      <image gicon={item.gicon} />
+      <image gicon={icon} />
     </Gtk.MenuButton>
   );
 }
