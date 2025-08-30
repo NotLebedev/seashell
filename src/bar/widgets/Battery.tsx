@@ -3,15 +3,16 @@ import BarWidget from "../BarWidget";
 import { createState } from "gnim";
 
 export default function Battery() {
-  if (!AstalBattery.get_default().isBattery) {
+  const battery = AstalBattery.get_default();
+  if (!battery.isBattery) {
     // If device has no battery don't display this widget
     return <></>;
   }
 
-  const [chargePercent, setChargePercent] = createState(0);
+  const [chargePercent, setChargePercent] = createState(battery.percentage);
 
-  AstalBattery.get_default().connect("notify::percentage", (state) => {
-    setChargePercent(state.get_percentage());
+  battery.connect("notify::percentage", (state) => {
+    setChargePercent(state.percentage);
   });
 
   return (
