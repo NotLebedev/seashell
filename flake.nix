@@ -28,6 +28,7 @@
         hyprland
         battery
         tray
+        powerprofiles
       ];
 
       extraPackages = astalPackages ++ [
