@@ -16,7 +16,11 @@ export default function Battery() {
 
   return (
     <BarWidget>
-      <label label={chargePercent((p) => `${p}%`)} />
+      <label
+        label={chargePercent((p) =>
+          new Intl.NumberFormat("en-US", { style: "percent" }).format(p),
+        )}
+      />
     </BarWidget>
   );
 }
