@@ -1,4 +1,5 @@
 {
+  "name": "seashell",
   "dependencies": {
     "ags": "*",
     "gnim": "*"
