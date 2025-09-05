@@ -46,12 +46,14 @@ export default function AutoHide({
       hovered || emptyWorkspace || initialDisplay || forceDisplay,
   );
 
-  const enterController = new Gtk.EventControllerMotion();
-
   AstalHyprland.get_default().connect("notify::focused-workspace", (state) => {
     setEmptyWorkspace(isEmptyWorkspace(state));
   });
+  AstalHyprland.get_default().connect("notify::clients", (state) => {
+    setEmptyWorkspace(isEmptyWorkspace(state));
+  });
 
+  const enterController = new Gtk.EventControllerMotion();
   enterController.connect("enter", () => setHovered(true));
   enterController.connect("leave", () => setHovered(false));
 
