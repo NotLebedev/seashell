@@ -1,77 +1,89 @@
 {
-  description = "My Awesome Desktop Shell";
+  description = "Hyprland Desktop Shell";
 
   inputs = {
     nixpkgs.url = "github:nixos/nixpkgs?ref=nixos-unstable";
-
-    ags = {
-      url = "github:aylur/ags";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
+    crane.url = "github:ipetkov/crane";
   };
 
   outputs =
     {
+      self,
       nixpkgs,
-      ags,
+      crane,
       ...
     }:
     let
       system = "x86_64-linux";
       pkgs = nixpkgs.legacyPackages.${system};
-      pname = "my-shell";
-      entry = "app.tsx";
 
-      astalPackages = with ags.packages.${system}; [
-        io
-        astal4
-        hyprland
-        battery
-        tray
-        powerprofiles
-      ];
+      craneLib = (crane.mkLib nixpkgs.legacyPackages.${system});
+      src =
+        let
+          root = ./.;
+          fileset = pkgs.lib.fileset.unions [
+            (craneLib.fileset.commonCargoSources ./.)
+            (pkgs.lib.fileset.fileFilter (file: file.hasExt "scss") ./.)
+          ];
+        in
+        pkgs.lib.fileset.toSource { inherit root fileset; };
 
-      extraPackages = astalPackages ++ [
-        pkgs.libadwaita
-        pkgs.libsoup_3
-      ];
+      commonArgs = {
+        inherit src;
+        strictDeps = true;
+
+        buildInputs = with pkgs; [
+          pam
+          dbus
+          gtk4
+          glib
+          gtk4-layer-shell
+          libdbusmenu
+        ];
+
+        nativeBuildInputs = with pkgs; [
+          pkg-config
+          wrapGAppsHook4
+        ];
+      };
+
+      cargoArtifacts = craneLib.buildDepsOnly commonArgs;
+      seashell = craneLib.buildPackage (
+        commonArgs
+        // {
+          inherit cargoArtifacts;
+        }
+      );
     in
     {
-      packages.${system} = {
-        default = pkgs.stdenv.mkDerivation {
-          name = pname;
-          src = ./.;
+      checks.${system} = {
+        inherit seashell;
 
-          nativeBuildInputs = with pkgs; [
-            wrapGAppsHook
-            gobject-introspection
-            ags.packages.${system}.default
-          ];
+        clippy = craneLib.cargoClippy (
+          commonArgs
+          // {
+            inherit cargoArtifacts;
+            cargoClippyExtraArgs = "--all-targets -- --deny warnings";
+          }
+        );
 
-          buildInputs = extraPackages ++ [ pkgs.gjs ];
-
-          installPhase = ''
-            runHook preInstall
-
-            mkdir -p $out/bin
-            mkdir -p $out/share
-            cp -r * $out/share
-            ags bundle ${entry} $out/bin/${pname} -d "SRC='$out/share'"
-
-            runHook postInstall
-          '';
+        fmt = craneLib.cargoFmt {
+          inherit src;
         };
       };
 
-      devShells.${system} = {
-        default = pkgs.mkShell {
-          WHAT = astalPackages;
-          buildInputs = [
-            (ags.packages.${system}.default.override {
-              inherit extraPackages;
-            })
-          ];
-        };
+      packages.${system}.default = seashell;
+
+      devShells.${system}.default = craneLib.devShell {
+        checks = self.checks.${system};
+
+        packages = with pkgs; [
+          rust-analyzer
+        ];
+
+        # Convinient logging for develpment
+        RUST_BACKTRACE = 1;
+        RUST_LOG = "info";
       };
     };
 }
