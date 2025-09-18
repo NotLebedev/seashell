@@ -79,6 +79,7 @@
 
         packages = with pkgs; [
           rust-analyzer
+          zbus-xmlgen
         ];
 
         # Convinient logging for develpment

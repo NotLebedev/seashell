@@ -1,10 +1,20 @@
-use dbusmenu_glib;
+use gtk::gio;
+use gtk::gio::DBusMenuModel;
 use gtk::gio::prelude::*;
+use gtk::glib;
+use gtk::glib::clone;
+use gtk::glib::prelude::*;
 use gtk::prelude::*;
 use gtk4_layer_shell::{Edge, Layer, LayerShell};
+use log::info;
+
+use crate::tray::dbus::StatusNotifierItemProxy;
+
+mod tray;
 
 // https://github.com/wmww/gtk-layer-shell/blob/master/examples/simple-example.c
 fn activate(application: &gtk::Application) {
+    env_logger::init();
     // Create a normal GTK window however you like
     let window = gtk::ApplicationWindow::new(application);
 
@@ -24,32 +34,69 @@ fn activate(application: &gtk::Application) {
     window.set_margin(Edge::Top, 20);
     window.set_anchor(Edge::Top, true);
 
-    // // ... or like this
-    // // Anchors are if the window is pinned to each edge of the output
-    // let anchors = [
-    //     (Edge::Left, true),
-    //     (Edge::Right, true),
-    //     (Edge::Top, false),
-    //     (Edge::Bottom, true),
-    // ];
-
-    // for (anchor, state) in anchors {
-    //     window.set_anchor(anchor, state);
-    // }
-
     // Set up a widget
-    let label = gtk::Label::new(Some(""));
-    label.set_markup("<span font_desc=\"20.0\">GTK Layer Shell example!</span>");
-    window.set_child(Some(&label));
-    window.show()
+    let b = gtk::Box::new(gtk::Orientation::Horizontal, 10);
+    window.set_child(Some(&b));
+
+    glib::spawn_future_local(clone!(
+        #[weak]
+        b,
+        async move {
+            let menus = status_notifier().await;
+
+            for menu in menus {
+                let mm = gtk::MenuButton::new();
+                mm.set_menu_model(Some(&menu));
+                b.append(&mm);
+            }
+        }
+    ));
+    window.present();
 }
 
 fn main() {
-    let application = gtk::Application::new(Some("org.notlebedev.seashell"), Default::default());
+    let app = gtk::Application::new(Some("org.notlebedev.seashell"), Default::default());
 
-    application.connect_activate(|app| {
+    app.connect_activate(|app| {
         activate(app);
     });
 
-    application.run();
+    app.run_with_args(&Vec::<String>::new());
+}
+
+async fn status_notifier() -> Vec<DBusMenuModel> {
+    let conn = tray::dbus::StatusNotifierWatcher::start_server()
+        .await
+        .unwrap();
+
+    let proxy = tray::dbus::StatusNotifierWatcherProxy::new(&conn)
+        .await
+        .unwrap();
+
+    let gio_conn = gio::bus_get_future(gio::BusType::Session).await.unwrap();
+
+    let items = proxy.registered_status_notifier_items().await.unwrap();
+
+    let mut models = Vec::new();
+
+    for name in items {
+        let (dest, path) = if let Some(idx) = name.find('/') {
+            (&name[..idx], &name[idx..])
+        } else {
+            (name.as_ref(), "/StatusNotifierItem")
+        };
+        info!("{dest}, {path}");
+        let item = StatusNotifierItemProxy::new(&conn, dest, path)
+            .await
+            .unwrap();
+        let Ok(menu) = item.menu().await else {
+            continue;
+        };
+        info!("{}", menu);
+
+        let client = dbusmenu_glib::Client::new(dest, menu);
+        client.menu();
+    }
+
+    models
 }
