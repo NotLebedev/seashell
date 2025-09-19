@@ -157,6 +157,7 @@ impl StatusNotifierWatcher {
 pub struct Icon {
     pub width: i32,
     pub height: i32,
+    /// Raw ARGB bytes (strid 4)
     pub bytes: Vec<u8>,
 }
 

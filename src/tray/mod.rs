@@ -1,6 +1,6 @@
 use async_once_cell::OnceCell;
 use futures::StreamExt;
-use gtk::gio;
+use gtk::{gdk, gio, glib};
 
 pub use dbus::Layout;
 use dbus::{DBusMenuProxy, StatusNotifierItemProxy, StatusNotifierWatcherProxy};
@@ -105,7 +105,20 @@ impl TrayItem {
     }
 
     pub async fn gicon(&self) -> anyhow::Result<gio::Icon> {
-        Ok(gio::ThemedIcon::new(self.notifier_item.icon_name().await?.as_ref()).into())
+        if let Ok(pixmaps) = self.notifier_item.icon_pixmap().await
+            && let Some(pixmap) = pixmaps.first()
+        {
+            let texture = gdk::MemoryTexture::new(
+                pixmap.width,
+                pixmap.height,
+                gdk::MemoryFormat::A8r8g8b8,
+                &glib::Bytes::from(&pixmap.bytes),
+                4 * pixmap.width as usize,
+            );
+            Ok(texture.into())
+        } else {
+            Ok(gio::ThemedIcon::new(self.notifier_item.icon_name().await?.as_ref()).into())
+        }
     }
 
     pub async fn listen_gicon_updated(&self) -> anyhow::Result<impl futures::Stream<Item = ()>> {

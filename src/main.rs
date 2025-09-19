@@ -72,7 +72,6 @@ fn activate(application: &gtk::Application) {
                 let Some(()) = stream.next().await else {
                     break;
                 };
-                info!("List updated");
 
                 tray_container.remove(&child_box);
             }
