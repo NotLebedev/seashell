@@ -11,4 +11,4 @@ gtk = { package = "gtk4", version = "0.10.0", features = [ "v4_18" ] }
 gtk4-layer-shell = "0.6.3"
 anyhow = "1.0.99"
 futures = "0.3.31"
-dbusmenu-glib = "0.1.0"
+async-once-cell = "0.5.4"

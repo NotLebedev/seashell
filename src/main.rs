@@ -1,14 +1,15 @@
-use gtk::gio;
-use gtk::gio::DBusMenuModel;
-use gtk::gio::prelude::*;
-use gtk::glib;
-use gtk::glib::clone;
-use gtk::glib::prelude::*;
-use gtk::prelude::*;
-use gtk4_layer_shell::{Edge, Layer, LayerShell};
-use log::info;
+use std::pin::pin;
 
-use crate::tray::dbus::StatusNotifierItemProxy;
+use futures::StreamExt;
+use gtk::{
+    gio::{self, prelude::*},
+    glib::{self, clone},
+    prelude::*,
+};
+use gtk4_layer_shell::{Edge, Layer, LayerShell};
+use log::{error, info};
+
+use crate::tray::{TrayItem, TrayServer};
 
 mod tray;
 
@@ -35,22 +36,49 @@ fn activate(application: &gtk::Application) {
     window.set_anchor(Edge::Top, true);
 
     // Set up a widget
-    let b = gtk::Box::new(gtk::Orientation::Horizontal, 10);
-    window.set_child(Some(&b));
+    let tray_container = gtk::Box::new(gtk::Orientation::Horizontal, 10);
+    window.set_child(Some(&tray_container));
 
     glib::spawn_future_local(clone!(
         #[weak]
-        b,
+        tray_container,
         async move {
-            let menus = status_notifier().await;
+            let Ok(()) = tray::start_server().await else {
+                error!("Failed to start tray backend server");
+                return;
+            };
 
-            for menu in menus {
-                let mm = gtk::MenuButton::new();
-                mm.set_menu_model(Some(&menu));
-                b.append(&mm);
+            let Ok(tray_server) = TrayServer::new().await else {
+                error!("Failed to connect to tray server");
+                return;
+            };
+            let Ok(stream) = tray_server.listen_items_updated().await else {
+                error!("Failed to start listening to item_updated events");
+                return;
+            };
+            let mut stream = pin!(stream);
+
+            loop {
+                let child_box = gtk::Box::new(gtk::Orientation::Horizontal, 10);
+                if let Ok(items) = tray_server.items().await {
+                    if let Ok(icons) = load_items(items).await {
+                        for icon in &icons {
+                            child_box.append(icon);
+                        }
+                    };
+                }
+                tray_container.append(&child_box);
+
+                let Some(()) = stream.next().await else {
+                    break;
+                };
+                info!("List updated");
+
+                tray_container.remove(&child_box);
             }
         }
     ));
+
     window.present();
 }
 
@@ -64,39 +92,41 @@ fn main() {
     app.run_with_args(&Vec::<String>::new());
 }
 
-async fn status_notifier() -> Vec<DBusMenuModel> {
-    let conn = tray::dbus::StatusNotifierWatcher::start_server()
-        .await
-        .unwrap();
+async fn load_items(items: Vec<TrayItem>) -> anyhow::Result<Vec<gtk::Widget>> {
+    let mut res = Vec::new();
+    for item in items.into_iter() {
+        let icon = gtk::Image::new();
 
-    let proxy = tray::dbus::StatusNotifierWatcherProxy::new(&conn)
-        .await
-        .unwrap();
+        if let Ok(gicon) = item.gicon().await {
+            icon.set_from_gicon(&gicon);
+        }
 
-    let gio_conn = gio::bus_get_future(gio::BusType::Session).await.unwrap();
+        let update_fut = glib::spawn_future_local(clone!(
+            #[weak]
+            icon,
+            async move {
+                let item = item.clone();
+                let Ok(stream) = item.listen_gicon_updated().await else {
+                    return;
+                };
+                let mut stream = pin!(stream);
+                while let Some(()) = stream.next().await {
+                    if let Ok(gicon) = item.gicon().await {
+                        icon.set_from_gicon(&gicon);
+                    }
+                }
+            }
+        ));
 
-    let items = proxy.registered_status_notifier_items().await.unwrap();
+        icon.connect_destroy(move |_| {
+            // Stop waiting for updates when item
+            // is removed from stack
+            update_fut.abort();
+            info!("aborted");
+        });
 
-    let mut models = Vec::new();
-
-    for name in items {
-        let (dest, path) = if let Some(idx) = name.find('/') {
-            (&name[..idx], &name[idx..])
-        } else {
-            (name.as_ref(), "/StatusNotifierItem")
-        };
-        info!("{dest}, {path}");
-        let item = StatusNotifierItemProxy::new(&conn, dest, path)
-            .await
-            .unwrap();
-        let Ok(menu) = item.menu().await else {
-            continue;
-        };
-        info!("{}", menu);
-
-        let client = dbusmenu_glib::Client::new(dest, menu);
-        client.menu();
+        res.push(icon.into());
     }
 
-    models
+    Ok(res)
 }

@@ -38,7 +38,6 @@
           gtk4
           glib
           gtk4-layer-shell
-          libdbusmenu
         ];
 
         nativeBuildInputs = with pkgs; [

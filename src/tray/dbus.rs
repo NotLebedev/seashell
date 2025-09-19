@@ -1,7 +1,7 @@
 use futures::StreamExt;
 use log::{info, warn};
 use zbus::{
-    Connection, Result,
+    Result,
     fdo::{DBusProxy, RequestNameFlags, RequestNameReply},
     interface,
     message::Header,
@@ -10,6 +10,8 @@ use zbus::{
     proxy,
     zvariant::{self, OwnedObjectPath},
 };
+
+use crate::tray::get_session;
 
 const NAME: WellKnownName =
     WellKnownName::from_static_str_unchecked("org.kde.StatusNotifierWatcher");
@@ -21,8 +23,8 @@ pub struct StatusNotifierWatcher {
 }
 
 impl StatusNotifierWatcher {
-    pub async fn start_server() -> anyhow::Result<Connection> {
-        let connection = zbus::connection::Connection::session().await?;
+    pub async fn start_server() -> anyhow::Result<()> {
+        let connection = get_session().await;
         connection
             .object_server()
             .at(OBJECT_PATH, StatusNotifierWatcher::default())
@@ -42,47 +44,45 @@ impl StatusNotifierWatcher {
         }
 
         let internal_connection = connection.clone();
-        gtk::gio::spawn_blocking(move || {
-            gtk::glib::spawn_future(async move {
-                let mut has_bus_name = false;
-                let unique_name = internal_connection.unique_name().map(|x| x.as_ref());
-                while let Some(evt) = name_owner_changed_stream.next().await {
-                    let Ok(args) = evt.args() else {
-                        continue;
-                    };
+        gtk::glib::spawn_future(async move {
+            let mut has_bus_name = false;
+            let unique_name = internal_connection.unique_name().map(|x| x.as_ref());
+            while let Some(evt) = name_owner_changed_stream.next().await {
+                let Ok(args) = evt.args() else {
+                    continue;
+                };
 
-                    if args.name.as_ref() == NAME {
-                        if args.new_owner.as_ref() == unique_name.as_ref() {
-                            info!("Acquired bus name: {NAME}");
-                            has_bus_name = true;
-                        } else if has_bus_name {
-                            info!("Lost bus name: {NAME}");
-                            has_bus_name = false;
-                        }
-                    } else if let BusName::Unique(name) = &args.name {
-                        let mut interface = interface.get_mut().await;
-                        if let Some(idx) = interface
-                            .items
-                            .iter()
-                            .position(|(unique_name, _)| unique_name == name)
-                        {
-                            let Ok(emitter) = SignalEmitter::new(&internal_connection, OBJECT_PATH)
-                            else {
-                                continue;
-                            };
+                if args.name.as_ref() == NAME {
+                    if args.new_owner.as_ref() == unique_name.as_ref() {
+                        info!("Acquired bus name: {NAME}");
+                        has_bus_name = true;
+                    } else if has_bus_name {
+                        info!("Lost bus name: {NAME}");
+                        has_bus_name = false;
+                    }
+                } else if let BusName::Unique(name) = &args.name {
+                    let mut interface = interface.get_mut().await;
+                    if let Some(idx) = interface
+                        .items
+                        .iter()
+                        .position(|(unique_name, _)| unique_name == name)
+                    {
+                        let Ok(emitter) = SignalEmitter::new(&internal_connection, OBJECT_PATH)
+                        else {
+                            continue;
+                        };
 
-                            let service = interface.items.remove(idx).1;
-                            let _ = StatusNotifierWatcher::status_notifier_item_unregistered(
-                                &emitter, &service,
-                            )
-                            .await;
-                        }
+                        let service = interface.items.remove(idx).1;
+                        let _ = StatusNotifierWatcher::status_notifier_item_unregistered(
+                            &emitter, &service,
+                        )
+                        .await;
                     }
                 }
-            })
+            }
         });
 
-        Ok(connection)
+        Ok(())
     }
 }
 
@@ -170,4 +170,7 @@ pub trait StatusNotifierItem {
 
     #[zbus(property)]
     fn menu(&self) -> zbus::Result<OwnedObjectPath>;
+
+    #[zbus(signal)]
+    fn new_icon(&self) -> Result<()>;
 }
