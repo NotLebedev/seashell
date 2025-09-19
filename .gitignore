@@ -1,8 +1,2 @@
-node_modules/
-@girs/
 .direnv/
-
-
-# Added by cargo
-
 /target
