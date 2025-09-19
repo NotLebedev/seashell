@@ -2,9 +2,11 @@ use async_once_cell::OnceCell;
 use futures::StreamExt;
 use gtk::gio;
 
-use crate::tray::dbus::{StatusNotifierItemProxy, StatusNotifierWatcherProxy};
+use dbus::{DBusMenuProxy, StatusNotifierItemProxy, StatusNotifierWatcherProxy};
+pub use dbus::{Layout, LayoutProps};
 
 mod dbus;
+mod menumodel;
 
 static SESSION: OnceCell<zbus::Connection> = OnceCell::new();
 pub async fn get_session() -> zbus::Connection {
@@ -68,8 +70,8 @@ impl TrayServer {
 
 #[derive(Clone)]
 pub struct TrayItem {
-    dest: String,
-    proxy: StatusNotifierItemProxy<'static>,
+    notifier_item: StatusNotifierItemProxy<'static>,
+    dbus_menu: DBusMenuProxy<'static>,
 }
 
 impl TrayItem {
@@ -80,20 +82,40 @@ impl TrayItem {
             (name, "/StatusNotifierItem".to_string())
         };
 
-        let proxy = StatusNotifierItemProxy::builder(&get_session().await)
+        let conn = get_session().await;
+        let notifier_item = StatusNotifierItemProxy::builder(&conn)
             .destination(dest.clone())?
             .path(path)?
             .cache_properties(zbus::proxy::CacheProperties::No)
             .build()
             .await?;
-        Ok(TrayItem { dest, proxy })
+
+        let menu_path = notifier_item.menu().await?;
+        let dbus_menu = DBusMenuProxy::builder(&conn)
+            .destination(dest)?
+            .path(menu_path)?
+            .build()
+            .await?;
+
+        Ok(TrayItem {
+            notifier_item,
+            dbus_menu,
+        })
     }
 
     pub async fn gicon(&self) -> anyhow::Result<gio::Icon> {
-        Ok(gio::ThemedIcon::new(self.proxy.icon_name().await?.as_ref()).into())
+        Ok(gio::ThemedIcon::new(self.notifier_item.icon_name().await?.as_ref()).into())
     }
 
     pub async fn listen_gicon_updated(&self) -> anyhow::Result<impl futures::Stream<Item = ()>> {
-        Ok(self.proxy.receive_new_icon().await?.map(|_| ()))
+        Ok(self.notifier_item.receive_new_icon().await?.map(|_| ()))
+    }
+
+    pub async fn layout(&self) -> anyhow::Result<Layout> {
+        Ok(self.dbus_menu.get_layout(0, -1, &[]).await?.1)
+    }
+
+    pub async fn listen_layout_updated(&self) -> anyhow::Result<impl futures::Stream<Item = ()>> {
+        Ok(self.dbus_menu.receive_layout_updated().await?.map(|_| ()))
     }
 }

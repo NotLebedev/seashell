@@ -9,7 +9,7 @@ use gtk::{
 use gtk4_layer_shell::{Edge, Layer, LayerShell};
 use log::{error, info};
 
-use crate::tray::{TrayItem, TrayServer};
+use crate::tray::{Layout, TrayItem, TrayServer};
 
 mod tray;
 
@@ -96,16 +96,16 @@ async fn load_items(items: Vec<TrayItem>) -> anyhow::Result<Vec<gtk::Widget>> {
     let mut res = Vec::new();
     for item in items.into_iter() {
         let icon = gtk::Image::new();
-
         if let Ok(gicon) = item.gicon().await {
             icon.set_from_gicon(&gicon);
         }
 
-        let update_fut = glib::spawn_future_local(clone!(
+        let update_icon_fut = glib::spawn_future_local(clone!(
             #[weak]
             icon,
+            #[strong]
+            item,
             async move {
-                let item = item.clone();
                 let Ok(stream) = item.listen_gicon_updated().await else {
                     return;
                 };
@@ -118,14 +118,42 @@ async fn load_items(items: Vec<TrayItem>) -> anyhow::Result<Vec<gtk::Widget>> {
             }
         ));
 
+        let menu_button = gtk::MenuButton::new();
+        menu_button.set_child(Some(&icon));
+        if let Ok(layout) = item.layout().await {
+            menu_button.set_menu_model(Some(&layout.as_menu_model()));
+            menu_button.insert_action_group("dbusmenu", Some(&layout.as_action_group()));
+        }
+
+        let update_popover_fut = glib::spawn_future_local(clone!(
+            #[weak]
+            menu_button,
+            #[strong]
+            item,
+            async move {
+                let Ok(stream) = item.listen_layout_updated().await else {
+                    return;
+                };
+                let mut stream = pin!(stream);
+                while let Some(()) = stream.next().await {
+                    if let Ok(layout) = item.layout().await {
+                        menu_button.set_menu_model(Some(&layout.as_menu_model()));
+                        menu_button
+                            .insert_action_group("dbusmenu", Some(&layout.as_action_group()));
+                    }
+                }
+            }
+        ));
+
         icon.connect_destroy(move |_| {
             // Stop waiting for updates when item
             // is removed from stack
-            update_fut.abort();
+            update_icon_fut.abort();
+            update_popover_fut.abort();
             info!("aborted");
         });
 
-        res.push(icon.into());
+        res.push(menu_button.into());
     }
 
     Ok(res)
