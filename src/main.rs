@@ -2,14 +2,14 @@ use std::pin::pin;
 
 use futures::StreamExt;
 use gtk::{
-    gio::{self, prelude::*},
+    gio::prelude::*,
     glib::{self, clone},
     prelude::*,
 };
 use gtk4_layer_shell::{Edge, Layer, LayerShell};
 use log::{error, info};
 
-use crate::tray::{Layout, TrayItem, TrayServer};
+use crate::tray::{TrayItem, TrayServer};
 
 mod tray;
 
@@ -122,7 +122,7 @@ async fn load_items(items: Vec<TrayItem>) -> anyhow::Result<Vec<gtk::Widget>> {
         menu_button.set_child(Some(&icon));
         if let Ok(layout) = item.layout().await {
             menu_button.set_menu_model(Some(&layout.as_menu_model()));
-            menu_button.insert_action_group("dbusmenu", Some(&layout.as_action_group()));
+            menu_button.insert_action_group("dbusmenu", Some(&layout.as_action_group(&item)));
         }
 
         let update_popover_fut = glib::spawn_future_local(clone!(
@@ -139,7 +139,7 @@ async fn load_items(items: Vec<TrayItem>) -> anyhow::Result<Vec<gtk::Widget>> {
                     if let Ok(layout) = item.layout().await {
                         menu_button.set_menu_model(Some(&layout.as_menu_model()));
                         menu_button
-                            .insert_action_group("dbusmenu", Some(&layout.as_action_group()));
+                            .insert_action_group("dbusmenu", Some(&layout.as_action_group(&item)));
                     }
                 }
             }

@@ -2,8 +2,9 @@ use async_once_cell::OnceCell;
 use futures::StreamExt;
 use gtk::gio;
 
+pub use dbus::Layout;
 use dbus::{DBusMenuProxy, StatusNotifierItemProxy, StatusNotifierWatcherProxy};
-pub use dbus::{Layout, LayoutProps};
+use zbus::zvariant;
 
 mod dbus;
 mod menumodel;
@@ -117,5 +118,17 @@ impl TrayItem {
 
     pub async fn listen_layout_updated(&self) -> anyhow::Result<impl futures::Stream<Item = ()>> {
         Ok(self.dbus_menu.receive_layout_updated().await?.map(|_| ()))
+    }
+
+    pub async fn fire_clicked_event(&self, id: i32) -> anyhow::Result<()> {
+        self.dbus_menu
+            .event(
+                id,
+                "clicked",
+                &zvariant::Value::new("").try_to_owned()?,
+                gtk::glib::real_time() as u32,
+            )
+            .await?;
+        Ok(())
     }
 }
