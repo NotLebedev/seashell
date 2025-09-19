@@ -73,6 +73,7 @@ impl TrayServer {
 pub struct TrayItem {
     notifier_item: StatusNotifierItemProxy<'static>,
     dbus_menu: DBusMenuProxy<'static>,
+    is_menu: bool,
 }
 
 impl TrayItem {
@@ -91,6 +92,9 @@ impl TrayItem {
             .build()
             .await?;
 
+        // item_is_menu never changes, value can be saved
+        let is_menu = notifier_item.item_is_menu().await.unwrap_or(true);
+
         let menu_path = notifier_item.menu().await?;
         let dbus_menu = DBusMenuProxy::builder(&conn)
             .destination(dest)?
@@ -101,6 +105,7 @@ impl TrayItem {
         Ok(TrayItem {
             notifier_item,
             dbus_menu,
+            is_menu,
         })
     }
 
@@ -142,6 +147,16 @@ impl TrayItem {
                 gtk::glib::real_time() as u32,
             )
             .await?;
+        Ok(())
+    }
+
+    pub fn is_menu(&self) -> bool {
+        self.is_menu
+    }
+
+    pub async fn activate(&self) -> anyhow::Result<()> {
+        self.notifier_item.activate(0, 0).await?;
+
         Ok(())
     }
 }

@@ -1,7 +1,6 @@
 use futures::StreamExt;
 use log::{info, warn};
 use zbus::{
-    Result,
     fdo::{DBusProxy, RequestNameFlags, RequestNameReply},
     interface,
     message::Header,
@@ -138,19 +137,19 @@ impl StatusNotifierWatcher {
     async fn status_notifier_item_registered(
         emitter: &SignalEmitter<'_>,
         service: &str,
-    ) -> Result<()>;
+    ) -> zbus::Result<()>;
 
     #[zbus(signal)]
     async fn status_notifier_item_unregistered(
         emitter: &SignalEmitter<'_>,
         service: &str,
-    ) -> Result<()>;
+    ) -> zbus::Result<()>;
 
     #[zbus(signal)]
-    async fn status_notifier_host_registered(emitter: &SignalEmitter<'_>) -> Result<()>;
+    async fn status_notifier_host_registered(emitter: &SignalEmitter<'_>) -> zbus::Result<()>;
 
     #[zbus(signal)]
-    async fn status_notifier_host_unregistered(emitter: &SignalEmitter<'_>) -> Result<()>;
+    async fn status_notifier_host_unregistered(emitter: &SignalEmitter<'_>) -> zbus::Result<()>;
 }
 
 #[derive(Clone, Debug, zvariant::Value)]
@@ -172,8 +171,13 @@ pub trait StatusNotifierItem {
     #[zbus(property)]
     fn menu(&self) -> zbus::Result<OwnedObjectPath>;
 
+    #[zbus(property)]
+    fn item_is_menu(&self) -> zbus::Result<bool>;
+
     #[zbus(signal)]
-    fn new_icon(&self) -> Result<()>;
+    fn new_icon(&self) -> zbus::Result<()>;
+
+    fn activate(&self, x: i32, y: i32) -> zbus::Result<()>;
 }
 
 /// Menu items are represented with a unique numeric id and a dictionary of properties [`LayoutProps`]
