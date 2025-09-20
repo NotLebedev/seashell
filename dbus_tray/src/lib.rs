@@ -3,6 +3,7 @@ use futures::StreamExt;
 
 pub use dbus::Layout;
 use dbus::{DBusMenuProxy, StatusNotifierItemProxy, StatusNotifierWatcherProxy};
+use log::error;
 use zbus::zvariant;
 
 mod dbus;
@@ -27,8 +28,12 @@ pub async fn get_session() -> zbus::Connection {
         .clone()
 }
 
-pub async fn start_server() -> anyhow::Result<()> {
-    dbus::StatusNotifierWatcher::start_server().await
+pub fn start_server() {
+    glib::spawn_future_local(async {
+        if let Err(err) = dbus::StatusNotifierWatcher::start_server().await {
+            error!("Failed to start status notifier server. Error was {err}");
+        }
+    });
 }
 
 #[derive(Clone)]
