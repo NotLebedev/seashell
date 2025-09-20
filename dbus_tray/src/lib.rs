@@ -1,6 +1,5 @@
 use async_once_cell::OnceCell;
 use futures::StreamExt;
-use gtk::{gdk, gio, glib};
 
 pub use dbus::Layout;
 use dbus::{DBusMenuProxy, StatusNotifierItemProxy, StatusNotifierWatcherProxy};
@@ -144,7 +143,7 @@ impl TrayItem {
                 id,
                 "clicked",
                 &zvariant::Value::new("").try_to_owned()?,
-                gtk::glib::real_time() as u32,
+                glib::real_time() as u32,
             )
             .await?;
         Ok(())

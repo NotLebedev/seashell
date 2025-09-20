@@ -1,11 +1,7 @@
-use gtk::{
-    gio::{self, prelude::ActionMapExt},
-    glib::clone,
-};
+use gio::prelude::*;
+use glib::clone;
 
-use crate::tray::TrayItem;
-
-use super::Layout;
+use super::{Layout, TrayItem};
 
 impl Layout {
     pub fn as_menu_model(&self) -> gio::MenuModel {
@@ -77,7 +73,7 @@ impl Layout {
                 #[strong]
                 tray_item,
                 move |_, _| {
-                    gtk::glib::spawn_future_local(clone!(
+                    glib::spawn_future_local(clone!(
                         #[strong]
                         tray_item,
                         async move {

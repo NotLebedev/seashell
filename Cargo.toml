@@ -1,15 +1,22 @@
-[package]
-name = "seashell"
-version = "0.1.0"
-edition = "2024"
+[workspace]
+members = [
+    "seashell",
+    "dbus_tray"
+]
+resolver = "3"
 
-[dependencies]
+[workspace.dependencies]
+dbus_tray = { path = "./dbus_tray" }
+
 log = "0.4.20"
 env_logger = "0.11.1"
-zbus = "5.11.0"
-gtk = { package = "gtk4", version = "0.10.0", features = [ "v4_18" ] }
-gtk4-layer-shell = "0.6.3"
 anyhow = "1.0.99"
 futures = "0.3.31"
 async-once-cell = "0.5.4"
 serde = "1.0.225"
+zbus = "5.11.0"
+gtk = { package = "gtk4", version = "0.10.1", features = [ "v4_18" ] }
+glib = "0.21.2"
+gio = "0.21.2"
+gdk = { package = "gdk4", version = "0.10.1", features= [ "v4_18" ] }
+gtk4-layer-shell = "0.6.3"

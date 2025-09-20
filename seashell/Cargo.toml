@@ -1,0 +1,16 @@
+[package]
+name = "seashell"
+version = "0.2.0"
+edition = "2024"
+
+[dependencies]
+dbus_tray = { workspace = true }
+
+log = { workspace = true }
+env_logger = { workspace = true }
+anyhow = { workspace = true }
+futures = { workspace = true }
+gtk = { workspace = true }
+glib = { workspace = true }
+gio = { workspace = true }
+gtk4-layer-shell = { workspace = true }

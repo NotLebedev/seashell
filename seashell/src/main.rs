@@ -1,41 +1,24 @@
 use std::pin::pin;
 
+use dbus_tray::{TrayItem, TrayServer};
 use futures::StreamExt;
-use gtk::{
-    gio::prelude::*,
-    glib::{self, clone},
-    prelude::*,
-};
+use gio::prelude::*;
+use glib::clone;
+use gtk::prelude::*;
 use gtk4_layer_shell::{Edge, Layer, LayerShell};
 use log::error;
 
-use crate::tray::{TrayItem, TrayServer};
-
-mod tray;
-
-// https://github.com/wmww/gtk-layer-shell/blob/master/examples/simple-example.c
 fn activate(application: &gtk::Application) {
     env_logger::init();
-    // Create a normal GTK window however you like
     let window = gtk::ApplicationWindow::new(application);
-
-    // Before the window is first realized, set it up to be a layer surface
     window.init_layer_shell();
-
-    // Display above normal windows
     window.set_layer(Layer::Overlay);
 
-    // Push other windows out of the way
-    // window.auto_exclusive_zone_enable();
-
-    // The margins are the gaps around the window's edges
-    // Margins and anchors can be set like this...
     window.set_margin(Edge::Left, 40);
     window.set_margin(Edge::Right, 40);
     window.set_margin(Edge::Top, 20);
     window.set_anchor(Edge::Top, true);
 
-    // Set up a widget
     let tray_container = gtk::Box::new(gtk::Orientation::Horizontal, 10);
     window.set_child(Some(&tray_container));
 
@@ -43,7 +26,7 @@ fn activate(application: &gtk::Application) {
         #[weak]
         tray_container,
         async move {
-            let Ok(()) = tray::start_server().await else {
+            let Ok(()) = dbus_tray::start_server().await else {
                 error!("Failed to start tray backend server");
                 return;
             };
@@ -151,6 +134,9 @@ async fn tray_item(item: TrayItem) -> gtk::MenuButton {
         }
     ));
 
+    // No, "Broken accounting of active state for widget" is not because
+    // of this. It's a gtk bug and a harmless one it seems. See
+    // https://gitlab.gnome.org/GNOME/gtk/-/blob/af64eb18ec9f3a9c0267b9eba44fb5fff71d0056/gtk/gtkwidget.c#L13379
     let click_controller = gtk::GestureClick::new();
     click_controller.set_button(0);
     click_controller.connect_pressed(clone!(

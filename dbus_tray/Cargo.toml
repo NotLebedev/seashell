@@ -1,0 +1,15 @@
+[package]
+name = "dbus_tray"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+log = { workspace = true }
+anyhow = { workspace = true }
+futures = { workspace = true }
+async-once-cell = { workspace = true }
+serde = { workspace = true }
+zbus = { workspace = true }
+glib = { workspace = true }
+gio = { workspace = true }
+gdk = { workspace = true }

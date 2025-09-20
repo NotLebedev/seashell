@@ -10,7 +10,7 @@ use zbus::{
     zvariant::{self, OwnedObjectPath, OwnedValue, Type},
 };
 
-use crate::tray::get_session;
+use super::get_session;
 
 const NAME: WellKnownName =
     WellKnownName::from_static_str_unchecked("org.kde.StatusNotifierWatcher");
@@ -43,7 +43,7 @@ impl StatusNotifierWatcher {
         }
 
         let internal_connection = connection.clone();
-        gtk::glib::spawn_future(async move {
+        glib::spawn_future(async move {
             let mut has_bus_name = false;
             let unique_name = internal_connection.unique_name().map(|x| x.as_ref());
             while let Some(evt) = name_owner_changed_stream.next().await {
