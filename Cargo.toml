@@ -19,7 +19,7 @@ futures = "0.3.31"
 async-once-cell = "0.5.4"
 serde = "1.0.225"
 zbus = { version = "5.11.0", default-features = false, features = [ "async-io" ] }
-gtk = { package = "gtk4", version = "0.10.1", features = [ "v4_18" ] }
+gtk = { package = "gtk4", version = "0.10.1", features = [ "v4_18", "blueprint" ] }
 glib = "0.21.2"
 gio = "0.21.2"
 gdk = { package = "gdk4", version = "0.10.1", features= [ "v4_18" ] }
@@ -42,6 +42,7 @@ large_digit_groups = "allow"
 missing_errors_doc = "allow"
 module_name_repetitions = "allow"
 must_use_candidate = "allow"
+new_without_default = "allow"
 redundant_else = "allow"
 struct_field_names = "allow"
 unused_self = "allow"
