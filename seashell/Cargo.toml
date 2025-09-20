@@ -14,3 +14,6 @@ gtk = { workspace = true }
 glib = { workspace = true }
 gio = { workspace = true }
 gtk4-layer-shell = { workspace = true }
+
+[lints]
+workspace = true

@@ -2,7 +2,7 @@ use std::pin::pin;
 
 use dbus_tray::{TrayItem, TrayServer};
 use futures::StreamExt;
-use gio::prelude::*;
+use gio::{ApplicationFlags, prelude::*};
 use glib::clone;
 use gtk::prelude::*;
 use gtk4_layer_shell::{Edge, Layer, LayerShell};
@@ -43,12 +43,12 @@ fn activate(application: &gtk::Application) {
 
             loop {
                 let child_box = gtk::Box::new(gtk::Orientation::Horizontal, 10);
-                if let Ok(items) = tray_server.items().await {
-                    if let Ok(icons) = load_items(items).await {
-                        for icon in &icons {
-                            child_box.append(icon);
-                        }
-                    };
+                if let Ok(items) = tray_server.items().await
+                    && let Ok(icons) = load_items(items).await
+                {
+                    for icon in &icons {
+                        child_box.append(icon);
+                    }
                 }
                 tray_container.append(&child_box);
 
@@ -65,7 +65,7 @@ fn activate(application: &gtk::Application) {
 }
 
 fn main() {
-    let app = gtk::Application::new(Some("org.notlebedev.seashell"), Default::default());
+    let app = gtk::Application::new(Some("org.notlebedev.seashell"), ApplicationFlags::default());
 
     app.connect_activate(|app| {
         activate(app);
@@ -76,7 +76,7 @@ fn main() {
 
 async fn load_items(items: Vec<TrayItem>) -> anyhow::Result<Vec<gtk::Widget>> {
     let mut res = Vec::new();
-    for item in items.into_iter() {
+    for item in items {
         res.push(tray_item(item).await.into());
     }
 

@@ -9,7 +9,14 @@ mod dbus;
 mod menumodel;
 
 static SESSION: OnceCell<zbus::Connection> = OnceCell::new();
+
+/// # Panics
+/// Could not connect to d-bus session
 pub async fn get_session() -> zbus::Connection {
+    #[allow(
+        clippy::expect_used,
+        reason = "App can not run properly withou d-bus connection"
+    )]
     SESSION
         .get_or_init(async {
             zbus::Connection::session()
@@ -77,8 +84,8 @@ pub struct TrayItem {
 
 impl TrayItem {
     async fn new(name: String) -> anyhow::Result<Self> {
-        let (dest, path) = if let Some(idx) = name.find('/') {
-            (name[..idx].to_string(), name[idx..].to_string())
+        let (dest, path) = if let Some((dest, path)) = name.split_once('/') {
+            (dest.to_string(), format!("/{path}"))
         } else {
             (name, "/StatusNotifierItem".to_string())
         };
@@ -86,7 +93,7 @@ impl TrayItem {
         let conn = get_session().await;
         let notifier_item = StatusNotifierItemProxy::builder(&conn)
             .destination(dest.clone())?
-            .path(path)?
+            .path(path.to_string())?
             .cache_properties(zbus::proxy::CacheProperties::No)
             .build()
             .await?;

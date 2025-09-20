@@ -197,16 +197,6 @@ impl<'a> serde::Deserialize<'a> for Layout {
 
 /// To reduce the amount of DBus traffic, a property should only be returned if its
 /// value is not the default value.
-///
-/// ## Note:
-/// The following values present in com.canonical.dbusmenu spec but not
-/// implemented here:
-///
-/// | Name      | Type                       | Description                                                                                                                                                                                                                                                                                                                                                                                                          | Default Value |
-/// |-----------|----------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|---------------|
-/// | icon-name | string                     | Icon name of the item, following the freedesktop.org icon spec.                                                                                                                                                                                                                                                                                                                                                      | ""            |
-/// | icon-data | binary                     | PNG data of the icon.                                                                                                                                                                                                                                                                                                                                                                                                | Empty         |
-/// | shortcut  | array of arrays of strings | The shortcut of the item. Each array represents the key press in the list of keypresses. Each list of strings contains a list of modifiers and then the key that is used. The modifier strings allowed are: "Control", "Alt", "Shift" and "Super". - A simple shortcut like Ctrl+S is represented as: [["Control", "S"]] - A complex shortcut like Ctrl+Q, Alt+X is represented as: [["Control", "Q"], ["Alt", "X"]] | Empty         |
 #[derive(Clone, Debug, Type, zvariant::DeserializeDict)]
 #[zvariant(signature = "dict")]
 pub struct LayoutProps {
@@ -215,6 +205,7 @@ pub struct LayoutProps {
     /// * "standard": an item which can be clicked to trigger an action or
     ///   show another menu
     /// * "separator": a separator
+    ///
     /// Vendor specific types can be added by prefixing them with "x--".
     ///
     /// **Default**: "standard"

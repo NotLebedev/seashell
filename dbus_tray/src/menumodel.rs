@@ -20,7 +20,7 @@ impl Layout {
 
         group
             .iter()
-            .flat_map(Layout::as_menu_item)
+            .filter_map(Layout::as_menu_item)
             .for_each(|it| group_menu.append_item(&it));
 
         gio::MenuItem::new_section(None, &group_menu)
@@ -43,7 +43,7 @@ impl Layout {
     }
 
     fn label(&self) -> Option<&str> {
-        self.1.label.as_ref().map(String::as_str)
+        self.1.label.as_deref()
     }
 
     pub fn as_action_group(&self, tray_item: &TrayItem) -> gio::ActionGroup {

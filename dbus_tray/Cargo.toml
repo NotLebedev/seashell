@@ -13,3 +13,6 @@ zbus = { workspace = true }
 glib = { workspace = true }
 gio = { workspace = true }
 gdk = { workspace = true }
+
+[lints]
+workspace = true

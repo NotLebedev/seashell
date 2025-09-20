@@ -25,5 +25,40 @@ gio = "0.21.2"
 gdk = { package = "gdk4", version = "0.10.1", features= [ "v4_18" ] }
 gtk4-layer-shell = "0.6.3"
 
+[workspace.lints.clippy]
+pedantic = { level = "warn", priority = -1 }
+
+# Disable some useless or opinionated pedantic warnings
+cast_possible_truncation = "allow"
+cast_possible_wrap = "allow"
+cast_precision_loss = "allow"
+cast_ptr_alignment = "allow"
+cast_sign_loss = "allow"
+doc_markdown = "allow"
+enum_glob_use = "allow"
+enum_variant_names = "allow"
+explicit_deref_methods = "allow"
+large_digit_groups = "allow"
+missing_errors_doc = "allow"
+module_name_repetitions = "allow"
+must_use_candidate = "allow"
+redundant_else = "allow"
+struct_field_names = "allow"
+unused_self = "allow"
+used_underscore_binding = "allow" # Broken
+
+# Prevent panicing
+exit = "warn"
+expect_used = "warn"
+get_unwrap = "warn"
+indexing_slicing = "warn"
+panic = "warn"
+string_slice = "warn"
+todo = "warn"
+unimplemented = "warn"
+unreachable = "warn"
+unwrap_used = "warn"
+
+
 [workspace.metadata.crane]
 name = "seashell-workspace"
