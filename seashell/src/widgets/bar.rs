@@ -1,16 +1,20 @@
 mod imp {
     use glib::types::StaticTypeExt;
-    use gtk::subclass::prelude::*;
+    use gtk::{prelude::*, subclass::prelude::*};
     use gtk4_layer_shell::{Edge, Layer, LayerShell};
 
-    use crate::widgets::Tray;
+    use crate::widgets::{Tray, auto_hide::AutoHide};
 
     #[derive(Default, Debug, gtk::CompositeTemplate)]
     #[template(string = r#"
     using Gtk 4.0;
 
     template $Bar : ApplicationWindow {
-        $Tray {}
+        $AutoHide {
+            child: Box {
+                $Tray {}
+            };
+        }
     }
     "#)]
     pub struct Bar {}
@@ -23,6 +27,7 @@ mod imp {
 
         fn class_init(klass: &mut Self::Class) {
             Tray::ensure_type();
+            AutoHide::ensure_type();
 
             klass.bind_template();
         }
@@ -40,6 +45,8 @@ mod imp {
             window.init_layer_shell();
             window.set_layer(Layer::Overlay);
             window.set_anchor(Edge::Top, true);
+            window.set_default_size(1, 1);
+            window.queue_resize();
         }
     }
 
