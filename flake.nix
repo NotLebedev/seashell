@@ -53,6 +53,12 @@
           inherit cargoArtifacts;
         }
       );
+
+      devShell = craneLib.devShell.override {
+        mkShell = pkgs.mkShell.override {
+          stdenv = pkgs.stdenvAdapters.useMoldLinker pkgs.stdenv;
+        };
+      };
     in
     {
       checks.${system} = {
@@ -73,7 +79,7 @@
 
       packages.${system}.default = seashell;
 
-      devShells.${system}.default = craneLib.devShell {
+      devShells.${system}.default = devShell {
         checks = self.checks.${system};
 
         packages = with pkgs; [
