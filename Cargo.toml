@@ -5,6 +5,10 @@ members = [
 ]
 resolver = "3"
 
+[workspace.package]
+version = "0.1.0"
+edition = "2024"
+
 [workspace.dependencies]
 dbus_tray = { path = "./dbus_tray" }
 
@@ -20,3 +24,6 @@ glib = "0.21.2"
 gio = "0.21.2"
 gdk = { package = "gdk4", version = "0.10.1", features= [ "v4_18" ] }
 gtk4-layer-shell = "0.6.3"
+
+[workspace.metadata.crane]
+name = "seashell-workspace"

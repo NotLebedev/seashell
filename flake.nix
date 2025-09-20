@@ -30,6 +30,7 @@
 
       commonArgs = {
         inherit src;
+        inherit (craneLib.crateNameFromCargoToml { cargoToml = ./Cargo.toml; }) version;
         strictDeps = true;
 
         buildInputs = with pkgs; [
@@ -50,6 +51,8 @@
       seashell = craneLib.buildPackage (
         commonArgs
         // {
+          pname = "seashell";
+          cargoExtraArgs = "-p seashell";
           inherit cargoArtifacts;
         }
       );
