@@ -3,7 +3,7 @@ mod imp {
     use gtk::{prelude::*, subclass::prelude::*};
     use gtk4_layer_shell::{Edge, Layer, LayerShell};
 
-    use crate::widgets::{Tray, auto_hide::AutoHide};
+    use crate::widgets::{Clock, Tray, auto_hide::AutoHide};
 
     #[derive(Default, Debug, gtk::CompositeTemplate)]
     #[template(string = r#"
@@ -12,7 +12,10 @@ mod imp {
     template $Bar : ApplicationWindow {
         $AutoHide {
             child: Box {
+                spacing: 10;
+
                 $Tray {}
+                $Clock {}
             };
         }
     }
@@ -28,6 +31,7 @@ mod imp {
         fn class_init(klass: &mut Self::Class) {
             Tray::ensure_type();
             AutoHide::ensure_type();
+            Clock::ensure_type();
 
             klass.bind_template();
         }
