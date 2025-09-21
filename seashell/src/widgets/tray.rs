@@ -11,14 +11,16 @@ mod imp {
     use gtk::subclass::prelude::*;
 
     #[derive(Default, Debug, gtk::CompositeTemplate)]
-    #[template(string = r"
+    #[template(string = r#"
     using Gtk 4.0;
 
     template $Tray: Box {
+        styles ["tray"]
+
         orientation: horizontal;
         spacing: 10;
     }
-    ")]
+    "#)]
     pub struct Tray {}
 
     #[glib::object_subclass]
@@ -132,9 +134,15 @@ async fn tray_item(item: TrayItem) -> gtk::MenuButton {
 
     let menu_button = gtk::MenuButton::new();
     menu_button.set_child(Some(&icon));
+    menu_button.set_css_classes(&["item"]);
     if let Ok(layout) = item.layout().await {
         menu_button.set_menu_model(Some(&layout.as_menu_model()));
         menu_button.insert_action_group("dbusmenu", Some(&layout.as_action_group(&item)));
+    }
+    if let Some(popover) = menu_button.popover() {
+        popover.set_has_arrow(false);
+        // Compensate for no arrow in layout
+        popover.set_offset(0, 16);
     }
 
     let update_popover_fut = glib::spawn_future_local(clone!(

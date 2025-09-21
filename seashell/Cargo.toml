@@ -12,9 +12,13 @@ anyhow = { workspace = true }
 futures = { workspace = true }
 async-channel = { workspace = true }
 gtk = { workspace = true }
+gdk = { workspace = true }
 glib = { workspace = true }
 gio = { workspace = true }
 gtk4-layer-shell = { workspace = true }
+
+[build-dependencies]
+grass = { workspace = true }
 
 [lints]
 workspace = true

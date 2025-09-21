@@ -1,0 +1,93 @@
+@import "tray.scss";
+
+$fg-color: white;
+
+$window-radius: 10px;
+$bg-window: #151516;
+$window-padding: 5px;
+$box-shadow-outer: rgba(0, 0, 0, 0.24) 0px 3px 8px;
+
+$color-transition:
+    color 0.1s,
+    background-color 0.1s,
+    border-color 0.1s;
+
+$el-radius: 8px;
+$el-neutral: #202021;
+$el-border: #3c3c3e;
+$el-hover: #0f426c;
+$el-active: #51a4e7;
+
+window {
+    background: none;
+    color: $fg-color;
+    font-weight: bold;
+}
+
+.bar {
+    background-color: $bg-window;
+    box-shadow: $box-shadow-outer;
+    border-radius: $window-radius;
+    padding: $window-padding;
+
+    /* min-width: 210px; */
+    margin: 8px;
+
+    > * {
+        $side-margin: 5px;
+        $between-margin: 3 * $side-margin;
+
+        margin-top: $side-margin;
+        margin-bottom: $side-margin;
+        margin-left: $side-margin;
+        margin-right: $between-margin;
+
+        font-size: 20px;
+
+        &:last-child {
+            margin-right: $side-margin;
+        }
+    }
+}
+
+button {
+    all: unset;
+    padding: 10px;
+    background-color: $el-neutral;
+    border-radius: $el-radius;
+    transition: $color-transition;
+
+    &:hover,
+    &:focus-within {
+        background-color: $el-hover;
+    }
+
+    &:active {
+        background-color: $el-active;
+    }
+}
+
+entry {
+    all: unset;
+    background-color: $el-neutral;
+    border-radius: $el-radius;
+    padding: 10px;
+    border: 2px solid $el-border;
+    transition: $color-transition;
+
+    &:hover,
+    &:focus-within {
+        border-color: $el-hover;
+    }
+
+    &.password {
+    }
+}
+
+popover.background {
+    > contents {
+        background-color: $bg-window;
+        box-shadow: $box-shadow-outer;
+        border: none;
+    }
+}

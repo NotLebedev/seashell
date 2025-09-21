@@ -1,0 +1,16 @@
+.tray {
+    & > box > .item {
+        margin-right: 5px;
+
+        &:last-child {
+            margin-right: 0;
+        }
+
+        & > button.toggle {
+            margin: 0;
+
+            padding: 0;
+            background: none;
+        }
+    }
+}

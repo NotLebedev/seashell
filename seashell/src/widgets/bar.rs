@@ -12,7 +12,7 @@ mod imp {
     template $Bar : ApplicationWindow {
         $AutoHide {
             child: Box {
-                spacing: 10;
+                styles ["bar"]
 
                 $Tray {}
                 $Clock {}
