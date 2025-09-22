@@ -168,6 +168,13 @@ impl Tray {
                         menu_button.set_menu_model(Some(&layout.as_menu_model()));
                         menu_button
                             .insert_action_group("dbusmenu", Some(&layout.as_action_group(&item)));
+                        // Because popup was recreated with new menu model
+                        // we need to hide arrow again
+                        if let Some(popover) = menu_button.popover() {
+                            popover.set_has_arrow(false);
+                            // Compensate for no arrow in layout
+                            popover.set_offset(0, 16);
+                        }
                     }
                 }
             }
