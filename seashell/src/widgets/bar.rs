@@ -10,11 +10,14 @@ mod imp {
     using Gtk 4.0;
 
     template $Bar : ApplicationWindow {
-        $AutoHide {
+        $AutoHide auto_hide {
             child: Box {
                 styles ["bar"]
 
-                $Tray {}
+                $Tray {
+                    auto-hide: auto_hide;
+                }
+
                 $Clock {}
             };
         }
