@@ -1,7 +1,8 @@
 [workspace]
 members = [
     "seashell",
-    "dbus_tray"
+    "dbus_connections",
+    "dbus_tray",
 ]
 resolver = "3"
 
@@ -11,6 +12,7 @@ edition = "2024"
 
 [workspace.dependencies]
 dbus_tray = { path = "./dbus_tray" }
+dbus_connections = { path = "./dbus_connections" }
 
 log = "0.4.20"
 env_logger = "0.11.1"

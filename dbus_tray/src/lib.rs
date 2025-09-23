@@ -1,4 +1,3 @@
-use async_once_cell::OnceCell;
 use futures::StreamExt;
 
 pub use dbus::Layout;
@@ -8,25 +7,6 @@ use zbus::zvariant;
 
 mod dbus;
 mod menumodel;
-
-static SESSION: OnceCell<zbus::Connection> = OnceCell::new();
-
-/// # Panics
-/// Could not connect to d-bus session
-pub async fn get_session() -> zbus::Connection {
-    #[allow(
-        clippy::expect_used,
-        reason = "App can not run properly withou d-bus connection"
-    )]
-    SESSION
-        .get_or_init(async {
-            zbus::Connection::session()
-                .await
-                .expect("Could not connect to d-bus")
-        })
-        .await
-        .clone()
-}
 
 pub fn start_server() {
     glib::spawn_future_local(async {
@@ -43,7 +23,7 @@ pub struct TrayServer {
 
 impl TrayServer {
     pub async fn new() -> anyhow::Result<Self> {
-        let conn = get_session().await;
+        let conn = dbus_connections::get_session().await;
         let proxy = StatusNotifierWatcherProxy::builder(&conn)
             .cache_properties(zbus::proxy::CacheProperties::No)
             .build()
@@ -95,7 +75,7 @@ impl TrayItem {
             (name, "/StatusNotifierItem".to_string())
         };
 
-        let conn = get_session().await;
+        let conn = dbus_connections::get_session().await;
         let notifier_item = StatusNotifierItemProxy::builder(&conn)
             .destination(dest.clone())?
             .path(path.to_string())?

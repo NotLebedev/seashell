@@ -10,8 +10,6 @@ use zbus::{
     zvariant::{self, OwnedObjectPath, OwnedValue, Type},
 };
 
-use super::get_session;
-
 const NAME: WellKnownName =
     WellKnownName::from_static_str_unchecked("org.kde.StatusNotifierWatcher");
 const OBJECT_PATH: &str = "/StatusNotifierWatcher";
@@ -23,7 +21,7 @@ pub struct StatusNotifierWatcher {
 
 impl StatusNotifierWatcher {
     pub async fn start_server() -> anyhow::Result<()> {
-        let connection = get_session().await;
+        let connection = dbus_connections::get_session().await;
         connection
             .object_server()
             .at(OBJECT_PATH, StatusNotifierWatcher::default())

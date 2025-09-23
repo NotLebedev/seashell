@@ -4,10 +4,11 @@ version.workspace = true
 edition.workspace = true
 
 [dependencies]
+dbus_connections = { workspace = true }
+
 log = { workspace = true }
 anyhow = { workspace = true }
 futures = { workspace = true }
-async-once-cell = { workspace = true }
 serde = { workspace = true }
 zbus = { workspace = true }
 glib = { workspace = true }

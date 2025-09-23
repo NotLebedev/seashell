@@ -1,0 +1,11 @@
+[package]
+name = "dbus_connections"
+version.workspace = true
+edition.workspace = true
+
+[dependencies]
+async-once-cell = { workspace = true }
+zbus = { workspace = true }
+
+[lints]
+workspace = true
