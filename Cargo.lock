@@ -382,6 +382,17 @@ dependencies = [
 ]
 
 [[package]]
+name = "dbus_upower"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "dbus_connections",
+ "futures",
+ "log",
+ "zbus",
+]
+
+[[package]]
 name = "endi"
 version = "1.1.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"

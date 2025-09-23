@@ -3,6 +3,7 @@ members = [
     "seashell",
     "dbus_connections",
     "dbus_tray",
+    "dbus_upower"
 ]
 resolver = "3"
 

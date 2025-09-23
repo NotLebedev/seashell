@@ -1,0 +1,15 @@
+[package]
+name = "dbus_upower"
+version.workspace = true
+edition.workspace = true
+
+[dependencies]
+dbus_connections = { workspace = true }
+
+log = { workspace = true }
+anyhow = { workspace = true }
+futures = { workspace = true }
+zbus = { workspace = true }
+
+[lints]
+workspace = true
