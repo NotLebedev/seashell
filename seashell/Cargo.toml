@@ -5,6 +5,7 @@ edition.workspace = true
 
 [dependencies]
 dbus_tray = { workspace = true }
+dbus_upower = { workspace = true }
 
 log = { workspace = true }
 env_logger = { workspace = true }

@@ -12,8 +12,9 @@ version = "0.1.0"
 edition = "2024"
 
 [workspace.dependencies]
-dbus_tray = { path = "./dbus_tray" }
 dbus_connections = { path = "./dbus_connections" }
+dbus_tray = { path = "./dbus_tray" }
+dbus_upower = { path = "./dbus_upower" }
 
 log = "0.4.20"
 env_logger = "0.11.1"

@@ -3,7 +3,7 @@ mod imp {
     use gtk::{prelude::*, subclass::prelude::*};
     use gtk4_layer_shell::{Edge, Layer, LayerShell};
 
-    use crate::widgets::{Clock, Tray, auto_hide::AutoHide};
+    use crate::widgets::{AutoHide, Battery, Clock, Tray};
 
     #[derive(Default, Debug, gtk::CompositeTemplate)]
     #[template(string = r#"
@@ -18,6 +18,7 @@ mod imp {
                     auto-hide: auto_hide;
                 }
 
+                $Battery {}
                 $Clock {}
             };
         }
@@ -35,6 +36,7 @@ mod imp {
             Tray::ensure_type();
             AutoHide::ensure_type();
             Clock::ensure_type();
+            Battery::ensure_type();
 
             klass.bind_template();
         }
