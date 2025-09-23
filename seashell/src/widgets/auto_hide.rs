@@ -13,6 +13,7 @@ mod imp {
 
     template $AutoHide: Box {
         orientation: vertical;
+        height-request: 4;
 
         Revealer revealer {
             child: bind template.child;
@@ -51,47 +52,19 @@ mod imp {
     #[glib::derived_properties]
     impl ObjectImpl for AutoHide {
         fn constructed(&self) {
-            self.obj().set_size_request(-1, 4);
-            let motion_controller = gtk::EventControllerMotion::new();
+            self.parent_constructed();
 
-            let (send, recv) = async_channel::unbounded::<bool>();
-            motion_controller.connect(
-                "enter",
-                false,
-                clone!(
-                    #[strong]
-                    send,
-                    move |_| {
-                        let _ = send.try_send(true);
-                        None
-                    }
-                ),
-            );
-
-            motion_controller.connect(
-                "leave",
-                false,
-                clone!(
-                    #[strong]
-                    send,
-                    move |_| {
-                        let _ = send.try_send(false);
-                        None
-                    }
-                ),
-            );
-
-            self.obj().add_controller(motion_controller);
-
-            glib::spawn_future_local(clone!(
-                #[weak(rename_to = this)]
-                self,
-                async move {
-                    while let Ok(hovered) = recv.recv().await {
-                        this.hovered(hovered);
-                    }
-                }
-            ));
+            // Straightforwad approach would have been to use gtk::EventControllerMotion.
+            // Hoverewer for some reason when clicking off of a popup a leave event is not
+            // emitted. When inspecting state flags I noticed that in this case the
+            // FOCUSED state flag is not removed. Wierd. But we actually don't care about
+            // "focus", it's the hover state (PRELIGHT) that is interesting and "focus"
+            // is handled separately by popups using reveal and hide mehtods
+            self.obj().connect_state_flags_changed(|this, _| {
+                let flags = this.state_flags();
+                this.imp()
+                    .hovered(flags.contains(gtk::StateFlags::PRELIGHT));
+            });
 
             // Show for a moment when bar just started
             self.initial_reveal.set(true);
