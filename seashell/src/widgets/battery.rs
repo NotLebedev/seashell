@@ -4,8 +4,8 @@ mod imp {
     use dbus_upower::UPower;
     use futures::StreamExt;
     use glib::clone;
-    use gtk::subclass::prelude::*;
-    use log::{error, info};
+    use gtk::{prelude::*, subclass::prelude::*};
+    use log::error;
 
     #[derive(Default, Debug, gtk::CompositeTemplate)]
     #[template(string = r#"
@@ -42,8 +42,8 @@ mod imp {
             self.parent_constructed();
 
             glib::spawn_future_local(clone!(
-                #[weak(rename_to = label)]
-                self.label,
+                #[weak(rename_to = this)]
+                self,
                 async move {
                     let Ok(upower) = UPower::new().await else {
                         error!("Could not connect to UPower bus.");
@@ -55,11 +55,16 @@ mod imp {
                         return;
                     };
 
+                    if let Ok(false) | Err(_) = display_device.is_present().await {
+                        this.obj().set_visible(false);
+                        return;
+                    }
+
                     let mut percentage_stream = pin!(display_device.listen_percentage().await);
 
                     while let Some(percentage) = percentage_stream.next().await {
                         if let Ok(percentage) = percentage {
-                            label.set_label(&format!("{}%", percentage.round()));
+                            this.label.set_label(&format!("{}%", percentage.round()));
                         }
                     }
                 }
