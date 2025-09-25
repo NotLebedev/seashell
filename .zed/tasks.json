@@ -1,16 +1,9 @@
 [
   {
     "label": "Run",
-    "command": "ags",
-    "args": ["run", "./src/app.tsx"],
+    "command": "cargo",
+    "args": ["run", "-p", "seashell"],
     "reveal": "never",
-    "hide": "on_success"
-  },
-  {
-    "label": "Inspect",
-    "command": "ags",
-    "args": ["inspect"],
-    "reveal": "never",
-    "hide": "always"
+    "hide": "never"
   }
 ]
