@@ -1,4 +1,9 @@
-use std::pin::pin;
+use std::{
+    cell::Cell,
+    pin::pin,
+    rc::Rc,
+    time::{Duration, SystemTime, UNIX_EPOCH},
+};
 
 use dbus_tray::{TrayItem, TrayServer};
 use futures::StreamExt;
@@ -108,6 +113,7 @@ impl Tray {
         Ok(res)
     }
 
+    #[allow(clippy::too_many_lines)]
     async fn tray_item(&self, item: TrayItem) -> gtk::MenuButton {
         let icon = gtk::Image::new();
         if let Ok(gicon) = item.gicon().await {
@@ -175,32 +181,76 @@ impl Tray {
         // No, "Broken accounting of active state for widget" is not because
         // of this. It's a gtk bug and a harmless one it seems. See
         // https://gitlab.gnome.org/GNOME/gtk/-/blob/af64eb18ec9f3a9c0267b9eba44fb5fff71d0056/gtk/gtkwidget.c#L13379
-        let click_controller = gtk::GestureClick::new();
-        click_controller.set_button(0);
-        click_controller.connect_pressed(clone!(
-            #[weak]
-            menu_button,
-            #[strong]
-            item,
-            move |gesture, _, _, _| {
-                gesture.set_state(gtk::EventSequenceState::Claimed);
+        if !item.is_menu() {
+            let click_controller = gtk::GestureClick::new();
+            click_controller.set_button(0);
+            click_controller.set_propagation_phase(gtk::PropagationPhase::Capture);
 
-                let button = gesture.current_button();
-                let is_menu = item.is_menu();
+            let last_popover_closed_time = Rc::new(Cell::new(Duration::ZERO));
 
-                if !is_menu && button == 1 {
-                    glib::spawn_future_local(clone!(
-                        #[strong]
-                        item,
-                        async move { item.activate().await }
-                    ));
-                } else if button == 1 || button == 3 {
-                    menu_button.popup();
+            click_controller.connect_pressed(clone!(
+                #[weak]
+                menu_button,
+                #[strong]
+                item,
+                #[strong]
+                last_popover_closed_time,
+                move |gesture, _, _, _| {
+                    gesture.set_state(gtk::EventSequenceState::Claimed);
+
+                    let current_time = SystemTime::now()
+                        .duration_since(UNIX_EPOCH)
+                        .unwrap_or(Duration::ZERO);
+
+                    // This is a hack fr he issue that clicking on button away from
+                    // popover causes it to stay poped up
+                    //
+                    // The reason is, event first causes popover to close as does any
+                    // clicking away from it. But then it is handled separately in
+                    // click_controller and by that point popover is closed and
+                    // this controller happily opens it back.
+                    //
+                    // This debounces these two events. Meaning only clicks that are 100ms
+                    // or later after popover closed are handled. Not even THAT bad
+                    //
+                    // Also, why the is that not the case for normal handling in menu button?
+                    // Nothing in code of MenuButton gives me a hint really.
+                    if let Some(duration) = current_time.checked_sub(last_popover_closed_time.get())
+                        && duration.as_millis() < 100
+                    {
+                        return;
+                    }
+
+                    let button = gesture.current_button();
+
+                    if button == 1 {
+                        glib::spawn_future_local(clone!(
+                            #[strong]
+                            item,
+                            async move { item.activate().await }
+                        ));
+                    } else if button == 3 {
+                        menu_button.popup();
+                    }
                 }
-            }
-        ));
+            ));
 
-        menu_button.add_controller(click_controller);
+            menu_button.add_controller(click_controller);
+
+            if let Some(popover) = menu_button.popover() {
+                popover.connect_closed(clone!(
+                    #[weak]
+                    last_popover_closed_time,
+                    move |_| {
+                        last_popover_closed_time.set(
+                            SystemTime::now()
+                                .duration_since(UNIX_EPOCH)
+                                .unwrap_or(Duration::ZERO),
+                        );
+                    }
+                ));
+            }
+        }
 
         // Stop waiting for updates when item
         // is removed from stack
