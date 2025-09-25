@@ -1,6 +1,3 @@
-@import "tray.scss";
-@import "battery.scss";
-
 $fg-color: white;
 
 $window-radius: 10px;
@@ -19,6 +16,13 @@ $el-border: #3c3c3e;
 $el-hover: #0f426c;
 $el-active: #51a4e7;
 
+$bar-element-side-margin: 5px;
+$bar-element-between-margin: 3 * $bar-element-side-margin;
+
+@import "tray.scss";
+@import "battery.scss";
+@import "menu_button.scss";
+
 window {
     background: none;
     color: $fg-color;
@@ -31,22 +35,22 @@ window {
     border-radius: $window-radius;
     padding: $window-padding;
 
-    /* min-width: 210px; */
     margin: 8px;
 
     > * {
-        $side-margin: 5px;
-        $between-margin: 3 * $side-margin;
-
-        margin-top: $side-margin;
-        margin-bottom: $side-margin;
-        margin-left: $side-margin;
-        margin-right: $between-margin;
+        margin-top: $bar-element-side-margin;
+        margin-bottom: $bar-element-side-margin;
+        margin-left: 0;
+        margin-right: $bar-element-between-margin;
 
         font-size: 18px;
 
+        &:first-child {
+            margin-left: $bar-element-side-margin;
+        }
+
         &:last-child {
-            margin-right: $side-margin;
+            margin-right: $bar-element-side-margin;
         }
     }
 }
@@ -91,4 +95,9 @@ popover.background {
         box-shadow: $box-shadow-outer;
         border: none;
     }
+}
+
+calendar.view {
+    background: transparent;
+    border: none;
 }

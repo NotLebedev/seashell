@@ -1,0 +1,28 @@
+.menuButton {
+    > menubutton > button.toggle {
+        margin: 0;
+
+        padding: 0;
+        background: none;
+
+        contents > box > * {
+            /*
+            MenuButton is a widget inside bar so it has margins itself.
+            But we need to add margins between elements to make them appear
+            spaced like the rest of widgets.
+            */
+            margin-top: 0;
+            margin-bottom: 0;
+            margin-left: 0;
+            margin-right: $bar-element-between-margin;
+
+            &:first-child {
+                margin-left: 0;
+            }
+
+            &:last-child {
+                margin-right: 0;
+            }
+        }
+    }
+}
