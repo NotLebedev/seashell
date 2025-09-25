@@ -14,9 +14,7 @@ mod imp {
             child: Box {
                 styles ["bar"]
 
-                $Tray {
-                    auto-hide: auto_hide;
-                }
+                $Tray {}
 
                 $Battery {}
                 $Clock {}

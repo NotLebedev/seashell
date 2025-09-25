@@ -3,19 +3,15 @@ use std::pin::pin;
 use dbus_tray::{TrayItem, TrayServer};
 use futures::StreamExt;
 use glib::clone;
-use gtk::{prelude::*, subclass::prelude::*};
+use gtk::prelude::*;
 use log::error;
 
 mod imp {
-    use std::cell::RefCell;
 
     use glib::clone;
-    use gtk::{prelude::*, subclass::prelude::*};
+    use gtk::subclass::prelude::*;
 
-    use crate::widgets::auto_hide::AutoHide;
-
-    #[derive(Default, Debug, gtk::CompositeTemplate, glib::Properties)]
-    #[properties(wrapper_type = super::Tray)]
+    #[derive(Default, Debug, gtk::CompositeTemplate)]
     #[template(string = r#"
     using Gtk 4.0;
 
@@ -26,10 +22,7 @@ mod imp {
         spacing: 10;
     }
     "#)]
-    pub struct Tray {
-        #[property(set, nullable, name = "auto-hide")]
-        pub auto_hide: RefCell<Option<AutoHide>>,
-    }
+    pub struct Tray {}
 
     #[glib::object_subclass]
     impl ObjectSubclass for Tray {
@@ -46,7 +39,6 @@ mod imp {
         }
     }
 
-    #[glib::derived_properties]
     impl ObjectImpl for Tray {
         fn constructed(&self) {
             self.parent_constructed();
@@ -209,20 +201,6 @@ impl Tray {
         ));
 
         menu_button.add_controller(click_controller);
-
-        menu_button.connect_active_notify(clone!(
-            #[weak(rename_to = tray)]
-            self,
-            move |menu_button| {
-                if let Some(auto_hide) = &*tray.imp().auto_hide.borrow() {
-                    if menu_button.is_active() {
-                        auto_hide.reveal();
-                    } else {
-                        auto_hide.hide();
-                    }
-                }
-            }
-        ));
 
         // Stop waiting for updates when item
         // is removed from stack

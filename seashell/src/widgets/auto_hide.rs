@@ -1,5 +1,3 @@
-use gtk::subclass::prelude::*;
-
 mod imp {
     use std::cell::{Cell, RefCell};
 
@@ -29,9 +27,6 @@ mod imp {
 
         initial_reveal: Cell<bool>,
         hovered: Cell<bool>,
-        // Number of widgets actively wanting
-        // this to be revealed
-        reveal_requests: Cell<u64>,
     }
 
     #[glib::object_subclass]
@@ -84,16 +79,6 @@ mod imp {
     impl BoxImpl for AutoHide {}
 
     impl AutoHide {
-        pub fn reveal(&self) {
-            self.reveal_requests.update(|n| n.saturating_add(1));
-            self.update_revealed();
-        }
-
-        pub fn hide(&self) {
-            self.reveal_requests.update(|n| n.saturating_sub(1));
-            self.update_revealed();
-        }
-
         fn hovered(&self, hovered: bool) {
             self.hovered.set(hovered);
             self.update_revealed();
@@ -105,9 +90,8 @@ mod imp {
         }
 
         fn update_revealed(&self) {
-            self.revealer.set_reveal_child(
-                self.hovered.get() || self.reveal_requests.get() > 0 || self.initial_reveal.get(),
-            );
+            self.revealer
+                .set_reveal_child(self.hovered.get() || self.initial_reveal.get());
         }
     }
 }
@@ -121,13 +105,5 @@ glib::wrapper! {
 impl AutoHide {
     pub fn new() -> Self {
         glib::Object::new()
-    }
-
-    pub fn reveal(&self) {
-        self.imp().reveal();
-    }
-
-    pub fn hide(&self) {
-        self.imp().hide();
     }
 }
