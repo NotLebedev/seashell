@@ -4,6 +4,8 @@ mod imp {
     use glib::clone;
     use gtk::{prelude::*, subclass::prelude::*};
 
+    use crate::widgets::PowerProfileSelector;
+
     #[derive(Default, Debug, gtk::CompositeTemplate, glib::Properties)]
     #[properties(wrapper_type = super::MenuButton)]
     #[template(string = r#"
@@ -21,6 +23,7 @@ mod imp {
                     orientation: vertical;
 
                     Calendar {}
+                    $PowerProfileSelector {}
                 };
             };
         }
@@ -43,6 +46,8 @@ mod imp {
         type Interfaces = (gtk::Buildable,);
 
         fn class_init(klass: &mut Self::Class) {
+            PowerProfileSelector::ensure_type();
+
             klass.bind_template();
         }
 

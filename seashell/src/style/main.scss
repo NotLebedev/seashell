@@ -22,6 +22,7 @@ $bar-element-between-margin: 3 * $bar-element-side-margin;
 @import "tray.scss";
 @import "battery.scss";
 @import "menu_button.scss";
+@import "power_profile_selector.scss";
 
 window {
     background: none;
@@ -67,7 +68,8 @@ button {
         background-color: $el-hover;
     }
 
-    &:active {
+    &:active,
+    &:checked {
         background-color: $el-active;
     }
 }
@@ -100,4 +102,27 @@ popover.background {
 calendar.view {
     background: transparent;
     border: none;
+
+    > header {
+        > stack.month,
+        > label.year {
+            background-color: $el-neutral;
+        }
+
+        > button:first-child,
+        > button + button {
+            border-top-right-radius: 0;
+            border-bottom-right-radius: 0;
+        }
+
+        > stack.month + button,
+        > label.year + button {
+            border-top-left-radius: 0;
+            border-bottom-left-radius: 0;
+        }
+
+        > stack.month + button {
+            margin-right: 5px;
+        }
+    }
 }

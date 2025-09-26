@@ -12,6 +12,7 @@ env_logger = { workspace = true }
 anyhow = { workspace = true }
 futures = { workspace = true }
 async-channel = { workspace = true }
+async-once-cell = { workspace = true }
 gtk = { workspace = true }
 gdk = { workspace = true }
 glib = { workspace = true }
