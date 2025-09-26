@@ -70,3 +70,16 @@ pub enum DeviceType {
     Toy = 27,
     BluetoothGeneric = 28,
 }
+
+#[proxy(
+    interface = "org.freedesktop.UPower.PowerProfiles",
+    default_path = "/org/freedesktop/UPower/PowerProfiles",
+    assume_defaults = true
+)]
+pub trait PowerProfiles {
+    #[zbus(property)]
+    fn active_profile(&self) -> zbus::Result<String>;
+
+    #[zbus(property)]
+    fn set_active_profile(&self, value: &str) -> zbus::Result<()>;
+}
