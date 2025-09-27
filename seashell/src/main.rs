@@ -1,15 +1,19 @@
+mod monitors;
 mod widgets;
 
 use gio::{ApplicationFlags, prelude::*};
-use gtk::prelude::*;
 use log::error;
+
+use crate::monitors::open_on_main_monitor;
 
 fn activate(application: &gtk::Application) {
     env_logger::init();
     dbus_tray::start_server();
 
-    let bar = widgets::Bar::new(application);
-    bar.present();
+    let hold = application.hold();
+    Box::leak(Box::new(hold));
+
+    open_on_main_monitor(application, widgets::Bar::new);
 }
 
 fn main() {

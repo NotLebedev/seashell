@@ -17,7 +17,7 @@ mod imp {
                 $Tray {}
 
                 $MenuButton {
-                    menu-anchor: template;
+                    menu-anchor: auto_hide;
 
                     $Battery {}
                     $Clock {}
