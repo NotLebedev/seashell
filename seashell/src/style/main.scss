@@ -2,7 +2,7 @@ $fg-color: white;
 
 $window-radius: 10px;
 $bg-window: #151516;
-$window-padding: 5px;
+$window-padding: 10px;
 $box-shadow-outer: rgba(0, 0, 0, 0.24) 0px 3px 8px;
 
 $color-transition:
@@ -16,8 +16,7 @@ $el-border: #3c3c3e;
 $el-hover: #0f426c;
 $el-active: #51a4e7;
 
-$bar-element-side-margin: 5px;
-$bar-element-between-margin: 3 * $bar-element-side-margin;
+$bar-element-between-margin: 15px;
 
 @import "tray.scss";
 @import "battery.scss";
@@ -35,24 +34,11 @@ window {
     box-shadow: $box-shadow-outer;
     border-radius: $window-radius;
     padding: $window-padding;
-
     margin: 8px;
+    font-size: 18px;
 
-    > * {
-        margin-top: $bar-element-side-margin;
-        margin-bottom: $bar-element-side-margin;
-        margin-left: 0;
+    > *:not(:last-child) {
         margin-right: $bar-element-between-margin;
-
-        font-size: 18px;
-
-        &:first-child {
-            margin-left: $bar-element-side-margin;
-        }
-
-        &:last-child {
-            margin-right: $bar-element-side-margin;
-        }
     }
 }
 

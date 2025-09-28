@@ -24,7 +24,7 @@ mod imp {
         styles ["tray"]
 
         orientation: horizontal;
-        spacing: 10;
+        spacing: 0;
     }
     "#)]
     pub struct Tray {}
@@ -86,7 +86,7 @@ impl Tray {
         let mut stream = pin!(stream);
 
         loop {
-            let child_box = gtk::Box::new(gtk::Orientation::Horizontal, 10);
+            let child_box = gtk::Box::new(gtk::Orientation::Horizontal, 0);
             if let Ok(items) = tray_server.items().await
                 && let Ok(icons) = self.load_items(items).await
             {
