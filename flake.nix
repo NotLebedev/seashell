@@ -39,12 +39,12 @@
           gtk4
           glib
           gtk4-layer-shell
-          blueprint-compiler
         ];
 
         nativeBuildInputs = with pkgs; [
           pkg-config
           wrapGAppsHook4
+          blueprint-compiler
         ];
       };
 
